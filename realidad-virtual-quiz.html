@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Realidad Virtual y Entornos Inmersivos — Test</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080b12;
+    --surface: #0f1420;
+    --surface2: #161d2e;
+    --border: #1e2a40;
+    --text: #e8edf5;
+    --muted: #5a6a85;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 20% 20%, rgba(251,113,133,0.07) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 40% at 80% 80%, rgba(167,139,250,0.07) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .wrap {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1rem;
+  }
+  #screen-menu { width: 100%; max-width: 520px; }
+  .logo-block {
+    text-align: center;
+    margin-bottom: 2.5rem;
+    animation: fadeDown .5s ease both;
+  }
+  .logo-icon {
+    width: 64px; height: 64px;
+    background: linear-gradient(135deg, #f43f5e, #a855f7);
+    border-radius: 18px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 0 40px rgba(244,63,94,0.25);
+  }
+  .logo-block h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: #fff;
+  }
+  .logo-block p { color: var(--muted); font-size: .85rem; margin-top: .4rem; }
+  .unit-list { display: flex; flex-direction: column; gap: .6rem; margin-bottom: 1rem; }
+  .unit-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: .9rem 1.1rem;
+    cursor: pointer;
+    display: flex; align-items: center; gap: .9rem;
+    transition: border-color .2s, transform .15s, background .2s;
+    animation: fadeUp .4s ease both;
+    text-align: left; width: 100%;
+  }
+  .unit-btn:hover { border-color: #2d3f60; background: var(--surface2); transform: translateY(-1px); }
+  .unit-btn:active { transform: scale(.99); }
+  .unit-pill { width: 4px; min-width: 4px; height: 40px; border-radius: 99px; }
+  .unit-info { flex: 1; min-width: 0; }
+  .unit-name { font-family: 'Syne', sans-serif; font-size: .9rem; font-weight: 700; color: #fff; }
+  .unit-sub { font-size: .75rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: .15rem; }
+  .unit-count { font-size: .75rem; color: var(--muted); white-space: nowrap; }
+  .unit-arrow { color: var(--muted); font-size: 1rem; }
+  .mega-btn {
+    width: 100%;
+    padding: 1.1rem 1.4rem;
+    border-radius: 16px;
+    border: none;
+    cursor: pointer;
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem; font-weight: 700;
+    color: #fff;
+    background: linear-gradient(135deg, #f43f5e 0%, #a855f7 100%);
+    box-shadow: 0 8px 30px rgba(244,63,94,0.28);
+    display: flex; align-items: center; justify-content: space-between;
+    transition: opacity .2s, transform .15s;
+    animation: fadeUp .4s .35s ease both;
+  }
+  .mega-btn:hover { opacity: .92; transform: translateY(-1px); }
+  .mega-btn:active { transform: scale(.99); }
+  .mega-left { display: flex; align-items: center; gap: .75rem; }
+  .mega-left span:first-child { font-size: 1.4rem; }
+  .mega-title { font-size: 1rem; }
+  .mega-sub { font-size: .75rem; font-weight: 400; opacity: .75; }
+  #screen-quiz { width: 100%; max-width: 520px; }
+  .quiz-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 1rem;
+    animation: fadeDown .3s ease both;
+  }
+  .back-btn {
+    background: none; border: 1px solid var(--border);
+    border-radius: 8px; padding: .4rem .8rem;
+    color: var(--muted); font-size: .8rem; cursor: pointer;
+    transition: color .15s, border-color .15s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .back-btn:hover { color: var(--text); border-color: #2d3f60; }
+  .unit-tag { font-size: .7rem; font-weight: 600; padding: .3rem .7rem; border-radius: 99px; letter-spacing: .05em; }
+  .counter { font-size: .8rem; color: var(--muted); }
+  .progress-bar {
+    height: 3px; background: var(--border); border-radius: 99px;
+    margin-bottom: 1.2rem; overflow: hidden;
+    animation: fadeDown .3s .1s ease both;
+  }
+  .progress-fill { height: 100%; border-radius: 99px; transition: width .5s cubic-bezier(.4,0,.2,1); }
+  .score-chip {
+    display: inline-flex; align-items: center; gap: .4rem;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 99px; padding: .3rem .8rem;
+    font-size: .8rem; color: var(--text);
+    margin-bottom: 1.2rem;
+    animation: fadeDown .3s .15s ease both;
+  }
+  .score-chip .star { color: #f59e0b; }
+  .question-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 18px; padding: 1.4rem; margin-bottom: 1.1rem;
+    animation: fadeUp .3s .1s ease both;
+  }
+  .question-card p { font-size: .97rem; line-height: 1.6; color: var(--text); }
+  .options { display: flex; flex-direction: column; gap: .55rem; margin-bottom: 1.2rem; }
+  .opt-btn {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: .9rem 1rem;
+    cursor: pointer;
+    display: flex; align-items: center; gap: .75rem;
+    transition: border-color .15s, background .15s, transform .1s;
+    text-align: left; width: 100%;
+    animation: fadeUp .3s ease both;
+  }
+  .opt-btn:hover:not(.disabled) { border-color: #2d3f60; background: var(--surface2); transform: translateY(-1px); }
+  .opt-btn:active:not(.disabled) { transform: scale(.99); }
+  .opt-btn.disabled { cursor: default; }
+  .opt-btn.correct { background: rgba(16,185,129,0.12); border-color: #10b981; }
+  .opt-btn.wrong { background: rgba(239,68,68,0.1); border-color: #ef4444; }
+  .opt-btn.faded { opacity: .4; }
+  .opt-letter {
+    width: 28px; height: 28px; min-width: 28px;
+    border-radius: 50%; border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: .75rem; font-family: 'Syne', sans-serif; font-weight: 700;
+    color: var(--muted);
+    transition: background .2s, border-color .2s, color .2s;
+  }
+  .opt-btn.correct .opt-letter { background: #10b981; border-color: #10b981; color: #fff; }
+  .opt-btn.wrong .opt-letter { background: #ef4444; border-color: #ef4444; color: #fff; }
+  .opt-text { font-size: .85rem; line-height: 1.4; color: var(--text); }
+  .opt-btn.faded .opt-text { color: var(--muted); }
+  .feedback-box {
+    border-radius: 12px; padding: .8rem 1rem;
+    display: flex; align-items: flex-start; gap: .6rem;
+    font-size: .85rem; line-height: 1.4;
+    animation: fadeUp .2s ease both; margin-bottom: .8rem;
+  }
+  .feedback-box.ok { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); color: #6ee7b7; }
+  .feedback-box.fail { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3); color: #fca5a5; }
+  .feedback-icon { font-size: 1rem; flex-shrink: 0; }
+  .next-btn {
+    width: 100%; padding: .9rem; border-radius: 12px; border: none; cursor: pointer;
+    font-family: 'Syne', sans-serif; font-size: .95rem; font-weight: 700; color: #fff;
+    transition: opacity .2s, transform .1s;
+    animation: fadeUp .25s ease both;
+  }
+  .next-btn:hover { opacity: .88; }
+  .next-btn:active { transform: scale(.99); }
+  #screen-results { width: 100%; max-width: 420px; text-align: center; }
+  .result-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 24px; padding: 2.5rem 2rem; margin-bottom: 1.2rem;
+    animation: fadeUp .4s ease both;
+  }
+  .result-emoji { font-size: 3.5rem; margin-bottom: 1rem; }
+  .result-title { font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 800; color: #fff; margin-bottom: .3rem; }
+  .result-sub { font-size: .82rem; color: var(--muted); margin-bottom: 1.5rem; }
+  .result-pct { font-family: 'Syne', sans-serif; font-size: 5rem; font-weight: 800; line-height: 1; margin-bottom: .3rem; }
+  .result-score { font-size: .85rem; color: var(--muted); margin-bottom: 1.5rem; }
+  .result-bar { height: 8px; background: var(--border); border-radius: 99px; overflow: hidden; }
+  .result-bar-fill { height: 100%; border-radius: 99px; transition: width 1s cubic-bezier(.4,0,.2,1); }
+  .result-actions { display: flex; flex-direction: column; gap: .7rem; animation: fadeUp .4s .1s ease both; }
+  .btn-outline {
+    background: var(--surface); border: 1px solid var(--border); color: var(--text);
+    padding: .9rem; border-radius: 12px; cursor: pointer;
+    font-family: 'Syne', sans-serif; font-size: .9rem; font-weight: 700;
+    transition: background .15s, border-color .15s;
+  }
+  .btn-outline:hover { background: var(--surface2); border-color: #2d3f60; }
+  .screen { display: none; }
+  .screen.active { display: block; }
+  @keyframes fadeDown { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+  .unit-btn:nth-child(1){animation-delay:.05s}.unit-btn:nth-child(2){animation-delay:.10s}
+  .unit-btn:nth-child(3){animation-delay:.15s}.unit-btn:nth-child(4){animation-delay:.20s}
+  .unit-btn:nth-child(5){animation-delay:.25s}.unit-btn:nth-child(6){animation-delay:.30s}
+  .opt-btn:nth-child(1){animation-delay:.05s}.opt-btn:nth-child(2){animation-delay:.10s}
+  .opt-btn:nth-child(3){animation-delay:.15s}.opt-btn:nth-child(4){animation-delay:.20s}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div id="screen-menu" class="screen active">
+    <div class="logo-block">
+      <div class="logo-icon">🥽</div>
+      <h1>Realidad Virtual y Entornos Inmersivos</h1>
+      <p>Elige un tema para practicar o pon a prueba todos los contenidos</p>
+    </div>
+    <div class="unit-list" id="unit-list"></div>
+    <button class="mega-btn" onclick="startQuiz('Todos')">
+      <div class="mega-left">
+        <span>⚡</span>
+        <div>
+          <div class="mega-title">Test Completo</div>
+          <div class="mega-sub">119 preguntas · Todos los temas</div>
+        </div>
+      </div>
+      <span>→</span>
+    </button>
+  </div>
+
+  <div id="screen-quiz" class="screen">
+    <div class="quiz-header">
+      <button class="back-btn" onclick="goMenu()">← Menú</button>
+      <span class="unit-tag" id="quiz-tag"></span>
+      <span class="counter" id="quiz-counter"></span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+    <div class="score-chip"><span class="star">★</span> <span id="score-chip">0 correctas</span></div>
+    <div class="question-card"><p id="question-text"></p></div>
+    <div class="options" id="options"></div>
+    <div id="feedback"></div>
+    <button class="next-btn" id="next-btn" style="display:none" onclick="nextQuestion()"></button>
+  </div>
+
+  <div id="screen-results" class="screen">
+    <div class="result-card">
+      <div class="result-emoji" id="res-emoji"></div>
+      <div class="result-title" id="res-title"></div>
+      <div class="result-sub" id="res-sub"></div>
+      <div class="result-pct" id="res-pct"></div>
+      <div class="result-score" id="res-score"></div>
+      <div class="result-bar"><div class="result-bar-fill" id="res-bar"></div></div>
+    </div>
+    <div class="result-actions">
+      <button class="next-btn" id="replay-btn" onclick="replayQuiz()">🔄 Repetir este test</button>
+      <button class="btn-outline" onclick="goMenu()">← Volver al menú principal</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const ALL_QUESTIONS = {
+  "Tema 1": [
+    {q:"¿Qué permite la Realidad Virtual (RV) al usuario?",o:["Comunicarse con otros usuarios a través de redes sociales.","Interactuar con entornos tridimensionales generados por ordenador.","Usar únicamente pantallas bidimensionales.","Acceder a información textual sin imágenes."],a:1},
+    {q:"¿Cuál es el principal aporte de la Realidad Virtual en el ámbito educativo?",o:["Sustituir por completo al docente en el proceso de enseñanza.","Facilitar el aprendizaje memorístico y repetitivo.","Transformar la manera en que los estudiantes interactúan con el conocimiento.","Reemplazar los libros de texto físicos por digitales."],a:2},
+    {q:"¿Qué efecto tiene la Realidad Virtual Inmersiva (RVI) en los estudiantes?",o:["Disminuye la atención y el compromiso cognitivo.","Aumenta el compromiso emocional y cognitivo.","Provoca distracciones en el aula.","Reduce el interés por los contenidos científicos."],a:1},
+    {q:"¿Qué tres elementos son fundamentales para que se dé una experiencia de Realidad Virtual?",o:["Realismo gráfico, conectividad y hardware.","Simulación interactiva, interacción implícita e inmersión sensorial.","Sonido, vídeo y movimiento.","Gafas 3D, ordenador y conexión a internet."],a:1},
+    {q:"¿Qué diferencia a la Realidad Virtual de otras tecnologías digitales?",o:["Que se utiliza solo para videojuegos.","Que se limita a reproducir videos educativos.","Que genera una sensación de presencia dentro del entorno digital.","Que no requiere de ningún dispositivo adicional."],a:2},
+    {q:"¿Qué papel desempeña la Inteligencia Artificial (IA) en la Realidad Virtual?",o:["Permite crear entornos 3D y personajes de forma más eficaz y rápida.","Sustituye al estudiante durante la práctica educativa.","Limita la capacidad de inmersión del usuario.","Evita la interacción con los objetos virtuales."],a:0},
+    {q:"¿Qué tecnología combina elementos reales y virtuales que interactúan entre sí?",o:["Realidad Virtual (VR).","Realidad Aumentada (AR).","Realidad Mixta (MR).","Realidad Extendida (XR)."],a:2},
+    {q:"¿En qué campo se utiliza la Realidad Virtual para el tratamiento de fobias y manejo del dolor?",o:["Ingeniería.","Medicina veterinaria.","Psicología.","Arquitectura."],a:2},
+    {q:"¿Qué son los gráficos CGI?",o:["Fotografías tomadas con cámara 360º.","Imágenes creadas mediante software y algoritmos informáticos.","Vídeos grabados con dron.","Escenarios reales adaptados a la RV."],a:1},
+    {q:"¿Qué aporta la Inteligencia Artificial a los vídeos 360º en términos de accesibilidad?",o:["Mejora el color y la resolución.","Permite generar subtítulos automáticos y traducciones.","Aumenta la duración del vídeo.","Reduce la interactividad."],a:1},
+    {q:"¿Qué se entiende por Realidad Extendida (XR) según Weinstein (2022)?",o:["Una tecnología exclusiva de los videojuegos.","La sustitución total del mundo real por uno virtual.","El conjunto de la realidad virtual, aumentada y mixta.","Una evolución únicamente de la realidad aumentada."],a:2},
+    {q:"¿Cuál es el objetivo principal de la Realidad Extendida?",o:["Vídeos en 360º.","Combinar las realidades físicas y virtuales hasta que sean indistinguibles.","Sustituir el uso del ordenador tradicional.","Crear únicamente simuladores educativos."],a:1},
+    {q:"¿A quién se le atribuye el término 'Realidad Virtual'?",o:["Weinstein (2022).","Sherman y Craig (2002).","Lanier, J. (1980).","Slater y Wilbur (1997)."],a:2},
+    {q:"¿Qué caracteriza a la Realidad Virtual Inmersiva?",o:["Se visualiza únicamente en pantallas planas.","No requiere dispositivos adicionales.","Aísla al usuario del mundo real y lo introduce en un entorno 3D interactivo.","Solo permite observar sin interactuar."],a:2},
+    {q:"¿Qué tipo de Realidad Virtual se basa en el uso de pantallas de ordenador o móvil sin dispositivos especiales?",o:["Realidad Virtual Inmersiva.","Realidad Virtual Mixta.","Realidad Virtual No Inmersiva.","Realidad Virtual Extendida."],a:2},
+    {q:"¿Cuál es un ejemplo típico de Realidad Virtual Semi Inmersiva?",o:["Un videojuego en un ordenador personal.","Un visor VR con guantes hápticos.","Un simulador de vuelo con cabina física y pantallas.","Un vídeo educativo en 2D."],a:2},
+    {q:"Según Sherman y Craig (2002), ¿cuál de los siguientes NO es uno de los elementos básicos de la RV inmersiva?",o:["Inmersión completa.","Retroalimentación sensorial.","Interactividad.","Conectividad a internet."],a:3},
+    {q:"¿Qué dispositivo histórico es considerado un precursor de la realidad virtual multisensorial?",o:["Google Cardboard.","Oculus Rift.","Sensorama de Morton Heilig.","Virtual Boy."],a:2},
+    {q:"¿Qué función cumple el giroscopio en las gafas de realidad virtual?",o:["Medir el campo magnético.","Detectar la rotación de la cabeza.","Equilibrar la orientación de la pantalla.","Registrar el movimiento de las manos."],a:1},
+    {q:"¿Cuál es uno de los principales beneficios educativos del uso de simuladores de realidad virtual?",o:["Favorecer el aprendizaje memorístico.","Eliminar la necesidad del docente.","Permitir el aprendizaje experiencial en entornos seguros.","Sustituir completamente las prácticas reales."],a:2},
+  ],
+  "Tema 2": [
+    {q:"¿Qué diferencia principal existe entre la Realidad Aumentada (RA) y la Realidad Virtual (RV)?",o:["La RA crea un entorno completamente simulado.","La RA reemplaza totalmente la realidad física.","La RA enriquece el mundo real superponiendo elementos digitales.","La RA se utiliza solo con gafas especiales."],a:2},
+    {q:"¿Cuál es una de las principales ventajas educativas de la Realidad Aumentada?",o:["Sustituye la enseñanza tradicional.","Favorece el aprendizaje significativo mediante la interacción con contenidos digitales.","Requiere infraestructura compleja y costosa.","Se limita a materias tecnológicas."],a:1},
+    {q:"Según Azuma (1997), ¿cuáles son las tres características básicas de la Realidad Aumentada?",o:["Realismo gráfico, sonido envolvente y conexión a internet.","Interacción en tiempo real, combinación de lo real y lo virtual, y registro en 3D.","Realidad simulada, inmersión total y control por voz.","Visualización 2D, animación y realidad extendida."],a:1},
+    {q:"¿Qué elemento actúa como activador de la Realidad Aumentada?",o:["Un micrófono.","Un marcador o código QR.","Un mando de control.","Una pantalla táctil."],a:1},
+    {q:"¿Qué videojuego popular de 2016 marcó un hito en el uso masivo de la RA?",o:["Fortnite.","Pokémon GO.","Minecraft.","Angry Birds."],a:1},
+    {q:"¿Qué función cumple la Inteligencia Artificial cuando se integra con la Realidad Aumentada?",o:["Permitir la creación de modelos 3D más pesados.","Facilitar el reconocimiento de objetos y la interacción inteligente.","Reducir la calidad visual de los modelos aumentados.","Limitar la autonomía del usuario en el entorno aumentado."],a:1},
+    {q:"¿Qué caracteriza a la Realidad Aumentada basada en marcadores?",o:["Utiliza sensores y GPS para determinar la posición del usuario.","Superpone información al detectar un marcador impreso o código QR.","Requiere conexión a Internet para funcionar.","Solo se utiliza en entornos industriales."],a:1},
+    {q:"¿Cuál es un ejemplo de RA basada en localización?",o:["Quiver AR.","Google Maps Live View.","Ikea Place.","Lens Studio."],a:1},
+    {q:"¿Qué aplicaciones populares emplean RA basada en reconocimiento facial?",o:["Google Earth y Live View.","Snapchat e Instagram.","Quiver y Merge Cube.","Arloopa y MyWebAR."],a:1},
+    {q:"¿Qué tipo de RA ofrece Google AR&VR (AR Code)?",o:["RA basada en marcadores.","RA sin marcadores.","RA basada en proyección.","RA facial."],a:1},
+    {q:"Según Espinosa (2015), ¿por qué se establecen niveles o grados de Realidad Aumentada?",o:["Para clasificar los dispositivos móviles.","Para diferenciar la RA de la Realidad Virtual.","Porque la RA puede variar en complejidad e integración con el mundo real.","Para limitar su uso educativo."],a:2},
+    {q:"¿Qué caracteriza a la Tecnología de nivel 0 en Realidad Aumentada?",o:["El uso de gafas inteligentes.","La superposición de objetos 3D complejos.","El uso de hiperenlaces mediante códigos QR en el mundo físico.","La geolocalización avanzada."],a:2},
+    {q:"¿Qué tipo de contenidos puede ofrecer un código QR en RA de nivel 0?",o:["Únicamente textos planos.","Solo imágenes en 2D.","Acceso a páginas web, vídeos, PDF o audios.","Exclusivamente modelos 3D interactivos."],a:2},
+    {q:"¿Qué elemento define la Tecnología de nivel 1 en Realidad Aumentada?",o:["El uso del GPS y la brújula.","La utilización de marcadores impresos que activan contenidos 3D.","La inmersión total del usuario.","La navegación web sin aplicaciones."],a:1},
+    {q:"¿Qué ocurre al escanear un marcador en la RA de nivel 1?",o:["Se abre un enlace web.","Se descarga una aplicación.","Se superpone un contenido virtual sobre la imagen real.","Se activa la geolocalización del dispositivo."],a:2},
+    {q:"¿Qué tecnología se emplea principalmente en la Realidad Aumentada de nivel 2?",o:["Códigos QR.","Marcadores geométricos.","GPS, brújula y sensores del dispositivo móvil.","Gafas de realidad aumentada."],a:2},
+    {q:"¿Qué caracteriza a la Tecnología de nivel 3 o Visión Aumentada?",o:["El uso exclusivo de smartphones.","La visualización mediante códigos impresos.","El empleo de gafas o lentillas biónicas para una experiencia inmersiva total.","La navegación web desde el navegador."],a:2},
+    {q:"¿Cuál de las siguientes afirmaciones es correcta sobre la implementación de la RA basada en marcadores en móviles?",o:["Requiere hardware de alta gama.","Necesita sensores avanzados y alto procesamiento.","Es sencilla y funciona en la mayoría de dispositivos actuales.","Solo funciona en sistemas iOS."],a:2},
+    {q:"¿Qué ventaja principal ofrece la WebAR frente a las aplicaciones nativas de RA?",o:["Mayor calidad gráfica.","Necesidad de instalar aplicaciones específicas.","Funcionamiento directo desde el navegador sin instalar apps.","Uso exclusivo en ordenadores."],a:2},
+    {q:"¿Qué es MyWebAR?",o:["Una herramienta que sustituye completamente al profesorado.","Un dispositivo que se usa para RV.","Una plataforma no-code que permite crear experiencias de RA en minutos.","Una aplicación RA que necesita programación del usuario."],a:2},
+  ],
+  "Tema 3": [
+    {q:"¿Qué autor definió la Realidad Aumentada como una experiencia interactiva en tiempo real que combina lo real y lo virtual?",o:["Freina y Ott (2015).","Lave y Wenger (1991).","Azuma (1997).","Kolb (1984)."],a:2},
+    {q:"Según Freina y Ott (2015), ¿cuál es una de las principales ventajas de la Realidad Virtual en educación?",o:["Permitir el acceso a internet en las aulas.","Favorecer el aprendizaje experiencial en contextos simulados.","Sustituir completamente a los docentes.","Aumentar la cantidad de contenidos memorísticos."],a:1},
+    {q:"¿Qué autor afirma que 'sin emoción no hay aprendizaje'?",o:["Bower.","Dr. Mora (2019).","Mikropoulos.","Wenger."],a:1},
+    {q:"¿Cuál de los siguientes beneficios se atribuye al uso de simuladores de RV en el aula?",o:["Fomentan la pasividad del alumno.","Reemplazan la interacción social.","Desarrollan habilidades cognitivas como la resolución de problemas y el pensamiento crítico.","Eliminan la necesidad de retroalimentación."],a:2},
+    {q:"¿Qué problema puede aparecer por el uso prolongado de gafas de RV, según Biener et al. (2022)?",o:["Mejora de la visión periférica.","Cibermareo y síntomas físicos como náuseas o dolor de cabeza.","Incremento del rendimiento cognitivo.","Reducción de la ansiedad."],a:1},
+    {q:"¿Cuál de las siguientes herramientas permite visualizar y compartir modelos 3D en la web, compatibles con WebGL y WebXR?",o:["Sketchfab.","Canva IA.","Assemblr Edu.","Copilot."],a:0},
+    {q:"¿Qué aplicación de Google permite realizar viajes virtuales a lugares del mundo y escenarios históricos en 3D?",o:["Google Street View.","Google Expeditions / Google Arts & Culture Expeditions.","Google Earth Studio.","YouTube 360."],a:1},
+    {q:"¿Qué permite la exploración inmersiva aplicada al aula con RV e IA?",o:["Crear robots educativos.","Observar entornos virtuales como museos, ecosistemas o el cuerpo humano.","Diseñar planos arquitectónicos reales.","Editar vídeos 2D en aplicaciones multimedia."],a:1},
+    {q:"¿Cuál es el objetivo pedagógico principal de la exploración inmersiva?",o:["Memorizar textos extensos.","Fomentar la competencia digital del docente.","Explorar activamente y conectar contenidos con experiencias inmersivas.","Sustituir los contenidos teóricos."],a:2},
+    {q:"¿Cuál es el objetivo pedagógico de las experiencias inmersivas en educación primaria?",o:["Desarrollar la expresión escrita.","Despertar la curiosidad y motivación mediante el juego.","Evaluar competencias digitales.","Fomentar la memorización de contenidos."],a:1},
+    {q:"¿Qué característica principal diferencia a las herramientas de IA para creación de imágenes como Copilot, ChatGPT o Leonardo AI?",o:["Todas generan exactamente las mismas imágenes.","Cada herramienta tiene una identidad y estilo propios.","Solo sirven para uso profesional.","No permiten uso educativo."],a:1},
+    {q:"¿Qué permite hacer la IA generativa integrada en aplicaciones online como Stable Diffusion?",o:["Solo editar imágenes existentes.","Crear únicamente textos explicativos.","Generar imágenes, vídeos y modelos 3D a partir de texto.","Diseñar páginas web completas."],a:2},
+    {q:"¿Cuál es una característica destacada de Stable Diffusion?",o:["No tiene versión gratuita.","Solo crea dibujos infantiles.","Permite generar imágenes fotorrealistas desde texto.","Solo funciona con imágenes cargadas."],a:2},
+    {q:"¿Qué opción ofrece el menú Fast 3D de Stable Diffusion?",o:["Crear vídeos animados automáticamente.","Transformar texto o imágenes planas en modelos 3D.","Editar sonidos y música.","Crear juegos interactivos."],a:1},
+    {q:"¿Qué tipo de contenido permite crear la herramienta RunwayML?",o:["Únicamente presentaciones educativas.","Imágenes y vídeos a partir de texto o imágenes con IA.","Solo modelos 3D estáticos.","Exámenes interactivos."],a:1},
+    {q:"¿Cuál es una diferencia entre Sora, Runway Gen-3 Alpha y Pika 1.0?",o:["Todas funcionan exactamente igual.","Solo una permite texto como entrada.","Cada una tiene un estilo y tipo de salida diferente en la creación de vídeos.","Ninguna permite crear vídeos con IA."],a:2},
+    {q:"¿Qué son los contenidos de exploración inmersiva?",o:["Juegos de consola tradicionales.","Entornos que permiten recorrer y observar espacios como museos o el cuerpo humano.","Aplicaciones de edición de texto.","Simuladores exclusivamente profesionales."],a:1},
+    {q:"¿Cuál es el principal uso educativo de la plataforma Engage?",o:["Sustituir completamente las clases presenciales.","Crear únicamente videojuegos educativos.","Ofrecer experiencias inmersivas en 3D para clases virtuales, simulaciones y excursiones digitales.","Diseñar contenidos sin interacción entre alumnos."],a:2},
+    {q:"En el ejemplo del aula de Historia sobre la Acrópolis de Atenas, ¿qué actividad completaría la experiencia VR?",o:["Un examen tipo test.","Un debate sin actividades posteriores.","Rellenar una ficha y crear un póster o mural en Canva.","Descargar una aplicación de pago."],a:2},
+    {q:"¿Para qué se utiliza la plataforma MoleculARweb en el ámbito educativo?",o:["Para crear vídeos de animación.","Para enseñar química y biología estructural mediante RA interactiva.","Para editar textos científicos.","Para diseñar videojuegos."],a:1},
+  ],
+  "Tema 4": [
+    {q:"¿Cuál es el principal objetivo del diseño pedagógico con entornos inmersivos?",o:["Usar tecnologías novedosas por entretenimiento.","Fomentar el uso de videojuegos en el aula.","Planificar experiencias de aprendizaje que aprovechen la RV y RA con objetivos curriculares.","Sustituir al docente con herramientas de IA."],a:2},
+    {q:"¿Qué herramienta de IA está diseñada específicamente desde la perspectiva del docente?",o:["ChatGPT.","Magic School AI.","Gemini.","Canva IA."],a:1},
+    {q:"¿Cuál de las siguientes funciones NO pertenece a Magic School AI?",o:["Creación de rúbricas y hojas de trabajo.","Generación automática de cuestionarios.","Control remoto de dispositivos móviles.","Asistente virtual personalizado para docentes."],a:2},
+    {q:"En la integración de RA/RV en Biología, ¿qué objeto con marcadores usarás para explorar una célula en 3D?",o:["Geogebra 3D.","Merge Cube.","Meshy.ai.","Arloon Plants."],a:1},
+    {q:"¿Qué aplicación gratuita usarías para visualizar modelos moleculares en Química mediante RA?",o:["MoleculARweb.","Geometría RA.","Picktochart.","Copilot Studio."],a:0},
+    {q:"¿Qué app se usa para visualizar figuras geométricas tridimensionales en Matemáticas?",o:["Geometría RA.","Google Lens.","Division Mitótica 3D.","Sketchfab."],a:0},
+    {q:"¿Qué competencia clave se desarrolla al promover el uso de entornos inmersivos que fomentan la creatividad y el pensamiento crítico?",o:["Competencia lingüística.","Competencia digital.","Competencia social y cívica.","Competencia artística."],a:1},
+    {q:"En el Aprendizaje Basado en Proyectos (ABP), ¿qué papel cumple la IA?",o:["Sustituye al docente.","Ayuda a personalizar y profundizar el aprendizaje.","Sirve solo para evaluar.","Controla la asistencia de los alumnos."],a:1},
+    {q:"¿Qué herramienta de IA permite crear rúbricas de evaluación personalizadas de forma automática?",o:["Copilot.","ClassPoint AI.","Magic School AI.","Picktochart."],a:2},
+    {q:"¿Qué aplicación con IA genera subtítulos automáticos para vídeos?",o:["Canva Generador de Voz.","Microsoft Teams.","Kapwing IA.","ChatGPT."],a:2},
+    {q:"¿Cuál es una de las competencias clave que se desarrollan con la Realidad Virtual (RV) y Aumentada (RA)?",o:["Competencia Musical.","Competencia Digital.","Competencia Física.","Competencia Deportiva."],a:1},
+    {q:"¿Qué metodología activa se menciona como común en proyectos de RA/VR?",o:["Clase magistral.","Aprendizaje Basado en Proyectos (ABP).","Evaluación tradicional.","Aprendizaje memorístico."],a:1},
+    {q:"¿Qué beneficio ofrece la RV en el aprendizaje personalizado?",o:["Evita la interacción con otros alumnos.","Permite al alumno aprender en un entorno seguro adaptado a su ritmo.","Reduce la creatividad.","Limita la resolución de problemas."],a:1},
+    {q:"¿Cuál de las siguientes competencias STEM se fomenta con proyectos de RA/VR?",o:["Lengua y Literatura.","Ciencias, Tecnología, Ingeniería y Matemáticas.","Educación Física.","Historia."],a:1},
+    {q:"¿Qué herramienta de IA se menciona como generador de imágenes en ABP?",o:["ChatGPT.","Google Arts & Culture.","DALL-E.","Miro."],a:2},
+    {q:"En un proyecto de ABP, ¿qué rol es responsable de la creación del producto final y su presentación?",o:["Jefe/a de Proyecto.","Analista de Datos/Técnico/a.","Comunicador/a/Diseñador/a.","Investigador/a Principal."],a:2},
+    {q:"¿Qué actividad harías como inicial en un proyecto sobre biodiversidad con RA/RV?",o:["Crear un mapa conceptual.","Viajar al Amazonas con RV.","Evaluar resultados.","Usar la IA para corregir."],a:1},
+    {q:"¿Qué se fomenta al interactuar los alumnos con plataformas de creación de contenidos de RV/RA?",o:["Pasividad.","Creatividad y pensamiento crítico.","Memorización de datos.","Habilidades deportivas."],a:1},
+    {q:"¿Qué herramienta se menciona para crear mapas conceptuales colaborativos?",o:["Google Arts & Culture.","DALL-E.","Miro.","ChatGPT."],a:2},
+    {q:"¿Qué aspectos finales de un proyecto ABP se pueden apoyar en IA?",o:["Planteamiento del reto y roles.","Reflexión y evaluación.","Fase de observación en RV.","Introducción teórica."],a:1},
+  ],
+  "Tema 5": [
+    {q:"¿Qué se entiende por un entorno inmersivo educativo?",o:["Un aula física con pantallas interactivas.","Un espacio digital en el que el alumno observa sin interactuar.","Un entorno virtual o aumentado en el que el estudiante participa con sensación de presencia.","Un programa informático que muestra vídeos educativos."],a:2},
+    {q:"¿Qué diferencia principal existe entre un entorno inmersivo y un mundo virtual?",o:["El mundo virtual no permite interacción.","El mundo virtual es un tipo específico de entorno inmersivo con avatares que interactúan en 3D.","El entorno inmersivo no usa gafas de RV.","El entorno inmersivo siempre requiere conexión a internet."],a:1},
+    {q:"Según Slater y Wilbur (1997), el concepto de 'presencia' se refiere a:",o:["El número de usuarios conectados al entorno.","La sensación de 'estar dentro' del entorno virtual.","La capacidad de crear objetos 3D.","La sincronización entre sonido e imagen."],a:1},
+    {q:"¿Qué sentidos se utilizan principalmente en la Realidad Virtual?",o:["Oído y tacto.","Vista y gusto.","Vista y oído.","Olfato y tacto."],a:2},
+    {q:"¿Cuál es una de las desventajas de la inmersión total en RV?",o:["Falta de interacción entre alumnos.","Puede provocar pérdida de orientación o mareos.","Dificulta la comunicación oral.","Reduce la calidad de la imagen."],a:1},
+    {q:"¿Qué papel desempeña la Inteligencia Artificial en los entornos inmersivos?",o:["Sustituir al docente en la enseñanza presencial.","Crear vídeos educativos automáticos.","Adaptar las experiencias inmersivas al ritmo y necesidades del alumnado.","Controlar el acceso a las plataformas educativas."],a:2},
+    {q:"¿Qué característica destaca de Delightex Edu (CoSpaces Edu)?",o:["Permite programar sólo con código complejo.","Es exclusiva para empresas privadas.","Permite crear entornos inmersivos educativos con programación por bloques.","No admite objetos en 3D ni realidad aumentada."],a:2},
+    {q:"¿Qué herramienta permite generar escenarios en 360° mediante IA?",o:["FrameVR.","EngageVR.","Skybox AI.","Openspace3D."],a:2},
+    {q:"¿Cuál de las siguientes plataformas es de código abierto y gratuita?",o:["Engage VR.","Spatial.io.","Openspace3D.","FrameVR."],a:2},
+    {q:"¿Qué finalidad educativa tiene la IA generativa en RV/AR?",o:["Generar ejercicios, escenarios o simulaciones personalizadas según el alumno.","Crear avatares para redes sociales.","Traducir textos automáticamente.","Sustituir el trabajo docente."],a:0},
+    {q:"¿Qué tienen en común las plataformas de creación de entornos inmersivos mencionadas?",o:["Están diseñadas solo para videojuegos comerciales.","Se desarrollan con motores 3D y están orientadas a creadores, educadores y empresas.","Funcionan únicamente con gafas VR.","No permiten compartir experiencias."],a:1},
+    {q:"¿Qué característica diferencia a FrameVR?",o:["Solo permite comunicación por texto.","Incluye un tutor virtual llamado Sasha que actúa como avatar.","No admite avatares.","Funciona únicamente como aplicación instalada."],a:1},
+    {q:"¿Cómo se comunican los usuarios en FrameVR?",o:["Solo mediante mensajes escritos.","Únicamente con gestos.","A través de voz, vídeo y texto en tiempo real.","Solo mediante grabaciones."],a:2},
+    {q:"¿Cuál es una ventaja del plan gratuito de FrameVR?",o:["No tiene ningún límite.","Es ideal para trabajos colaborativos, aunque con restricciones.","Permite usuarios ilimitados.","Incluye almacenamiento ilimitado."],a:1},
+    {q:"¿Para qué se utiliza principalmente Engage VR en educación?",o:["Para crear videojuegos individuales.","Para sustituir completamente las clases presenciales.","Para crear aulas virtuales y encuentros remotos con alumnos.","Para diseñar contenidos sin interacción."],a:2},
+    {q:"¿Qué tipo de contenido se puede hacer con Skybox AI?",o:["Solo imágenes planas.","Escenarios en 360° o panoramas inmersivos desde descripciones en lenguaje natural.","No permite generar imágenes 360º.","Sólo se puede usar en dispositivos móviles."],a:1},
+    {q:"¿Qué tipo de plataforma es OpenSpace3D?",o:["Plataforma cerrada y de pago.","Aplicación solo para móviles.","Plataforma gratuita y de código abierto para crear apps y videojuegos inmersivos sin código.","Editor exclusivo de imágenes 360º."],a:2},
+    {q:"¿En qué consiste un tour virtual educativo?",o:["En reproducir un único vídeo en 360º.","En enlazar imágenes 360º mediante objetos dentro de cada escena.","En recorrer espacios únicamente con texto.","En usar exclusivamente gafas VR."],a:1},
+    {q:"¿Qué plataforma es un repositorio de objetos 3D gratuitos con licencia CC0?",o:["Sketchfab.","3D Warehouse.","Poly Haven.","Meshy."],a:2},
+    {q:"¿Qué característica define a Assemblr Edu?",o:["Generar modelos 3D para ver en RA.","La cuenta gratuita es ilimitada.","Permite programar con código avanzado.","Funciona exclusivamente sin conexión a Internet."],a:0},
+  ],
+  "Tema 6": [
+    {q:"¿Qué caracteriza al aprendizaje en entornos inmersivos?",o:["Se basa en la memorización de conceptos teóricos.","Se desarrolla exclusivamente a través de vídeos explicativos.","Se construye mediante la participación directa y la experiencia práctica.","Se centra en la repetición de ejercicios tradicionales."],a:2},
+    {q:"¿Cuál de los siguientes enfoques pedagógicos sustenta las actividades inmersivas?",o:["Conductismo y aprendizaje por repetición.","Aprendizaje experiencial, situado y constructivista.","Instruccionismo y aprendizaje memorístico.","Teoría de la carga cognitiva."],a:1},
+    {q:"En los entornos inmersivos, los objetivos de aprendizaje deben centrarse en:",o:["La exposición magistral del docente.","La exploración, experimentación y resolución de problemas.","El uso intensivo de cuestionarios escritos.","El desarrollo de habilidades exclusivamente teóricas."],a:1},
+    {q:"¿Cuál de los siguientes verbos es adecuado para redactar objetivos en experiencias inmersivas?",o:["Copiar.","Memorizar.","Explorar.","Repetir."],a:2},
+    {q:"Según Seinfeld et al. (2022), ¿qué actitud puede fomentarse mediante la Realidad Virtual?",o:["Competitividad excesiva.","Empatía hacia los compañeros con dificultades.","Individualismo.","Desinterés por los demás."],a:1},
+    {q:"En el diseño de actividades inmersivas, la accesibilidad implica:",o:["Usar solo texto sin imágenes.","Incluir subtítulos, audio, imágenes y animaciones.","Eliminar la narración o los sonidos.","Limitar la interacción a un único dispositivo."],a:1},
+    {q:"¿Qué metodología se recomienda aplicar en la planificación de actividades inmersivas?",o:["Lección magistral tradicional.","Aprendizaje Basado en Proyectos y gamificación.","Dictado y resolución escrita.","Aprendizaje memorístico."],a:1},
+    {q:"¿Qué aspecto debe considerarse al crear contenidos educativos para entornos inmersivos?",o:["Solo el aspecto tecnológico.","Únicamente el diseño visual.","Los beneficios pedagógicos y su diferencia con contenidos tradicionales.","El coste económico del dispositivo."],a:2},
+    {q:"¿Qué tipo de aprendizaje se favorece principalmente en actividades inmersivas?",o:["Aprendizaje memorístico.","Aprendizaje a través de la experiencia en entornos simulados.","Aprendizaje exclusivamente teórico.","Aprendizaje pasivo."],a:1},
+    {q:"¿Por qué los entornos inmersivos contextualizan el aprendizaje?",o:["Porque sustituyen al docente.","Porque recrean situaciones reales o profesionales cercanas al alumno.","Porque eliminan los contenidos curriculares.","Porque se basan solo en juegos."],a:1},
+    {q:"¿Qué papel juega la participación del alumno en el aprendizaje inmersivo?",o:["Es mínima y opcional.","Es irrelevante para la evaluación.","Es clave, ya que el aprendizaje se construye con la interacción directa en el entorno.","Se limita a observar el escenario."],a:2},
+    {q:"¿Qué enfoques pedagógicos sustentan los contenidos de RV/RA?",o:["Conductismo y aprendizaje repetitivo.","Aprendizaje experiencial, aprendizaje situado y constructivismo.","Enseñanza magistral tradicional.","Evaluación exclusivamente cuantitativa."],a:1},
+    {q:"¿Cómo deben formularse los objetivos de aprendizaje en entornos inmersivos?",o:["Centrándose solo en contenidos teóricos.","Basándose en competencias y logrados mediante experimentación y exploración.","Limitándose a la memorización.","Enfocados solo a la evaluación final."],a:1},
+    {q:"Según Fromm et al. (2021), ¿qué oportunidades ofrece la Realidad Virtual para el aprendizaje?",o:["Únicamente entretenimiento.","Simulación, feedback inmediato y escenarios seguros para la práctica.","Sustituir el trabajo colaborativo.","Evaluación automática sin reflexión."],a:1},
+    {q:"¿Qué deben combinar los objetivos inmersivos?",o:["Tecnología y coste.","Conocimientos, aplicaciones prácticas y actitudes.","Evaluación y calificación.","Contenidos digitales y analógicos."],a:1},
+    {q:"¿Qué metodologías son más adecuadas para secuencias de aprendizaje inmersivas?",o:["Clases magistrales tradicionales.","Metodologías activas como ABP, gamificación y aprendizaje colaborativo.","Estudio individual exclusivo.","Evaluación basada solo en exámenes."],a:1},
+    {q:"¿Qué aspecto evalúa la metacognición en actividades inmersivas?",o:["La velocidad de ejecución del alumno.","La capacidad de memorizar conceptos.","La reflexión del alumno sobre su propio aprendizaje tras la experiencia.","El uso técnico del dispositivo."],a:2},
+    {q:"¿Qué elemento se utiliza en Delightex Edu para programar las interacciones de las escenas?",o:["Coblocs / CoBlocks.","Copilot.","Chatbot.","Photooxy."],a:0},
+    {q:"¿Qué función cumple un tutor virtual en entornos de RV/RA?",o:["Sustituir completamente al docente.","Evaluar automáticamente los proyectos sin intervención humana.","Formular preguntas, ofrecer feedback y guiar la reflexión del alumno.","Mostrar exclusivamente contenido teórico sin interacción."],a:2},
+    {q:"¿Qué herramienta se emplea para pasar una imagen plana a imagen en 360º?",o:["La aplicación Canva.","La herramienta Sketchfab.","Photoplix.com.","Photooxy.com."],a:3},
+  ],
+};
+
+const UNIT_META = {
+  "Tema 1": { gradient:"linear-gradient(135deg,#f43f5e,#fb7185)", sub:"Fundamentos, tipos y dispositivos de RV" },
+  "Tema 2": { gradient:"linear-gradient(135deg,#a855f7,#c084fc)", sub:"Realidad Aumentada: niveles y tecnologías" },
+  "Tema 3": { gradient:"linear-gradient(135deg,#3b82f6,#60a5fa)", sub:"Herramientas, IA generativa y exploración inmersiva" },
+  "Tema 4": { gradient:"linear-gradient(135deg,#f97316,#fb923c)", sub:"Diseño pedagógico y ABP con RV/RA" },
+  "Tema 5": { gradient:"linear-gradient(135deg,#10b981,#34d399)", sub:"Plataformas, mundos virtuales y creación 3D" },
+  "Tema 6": { gradient:"linear-gradient(135deg,#eab308,#fbbf24)", sub:"Pedagogía inmersiva, objetivos y evaluación" },
+};
+
+let state = { unit: null, questions: [], idx: 0, score: 0, answered: false, selected: -1 };
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+}
+
+function buildMenu() {
+  const list = document.getElementById('unit-list');
+  list.innerHTML = '';
+  Object.entries(UNIT_META).forEach(([unit, meta]) => {
+    const count = ALL_QUESTIONS[unit].length;
+    const btn = document.createElement('button');
+    btn.className = 'unit-btn';
+    btn.innerHTML = `
+      <div class="unit-pill" style="background:${meta.gradient}"></div>
+      <div class="unit-info">
+        <div class="unit-name">${unit}</div>
+        <div class="unit-sub">${meta.sub}</div>
+      </div>
+      <span class="unit-count">${count} preg.</span>
+      <span class="unit-arrow">→</span>
+    `;
+    btn.onclick = () => startQuiz(unit);
+    list.appendChild(btn);
+  });
+}
+
+function startQuiz(unit) {
+  state.unit = unit;
+  let pool = unit === 'Todos' ? Object.values(ALL_QUESTIONS).flat() : ALL_QUESTIONS[unit];
+  state.questions = shuffle(pool);
+  state.idx = 0; state.score = 0; state.answered = false; state.selected = -1;
+  showScreen('quiz');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = state.questions[state.idx];
+  const meta = state.unit === 'Todos' ? { gradient:'linear-gradient(135deg,#f43f5e,#a855f7)' } : UNIT_META[state.unit];
+  const total = state.questions.length;
+
+  const tag = document.getElementById('quiz-tag');
+  tag.textContent = state.unit;
+  tag.style.background = meta.gradient;
+  tag.style.color = '#fff';
+
+  document.getElementById('quiz-counter').textContent = `${state.idx + 1} / ${total}`;
+
+  const fill = document.getElementById('progress-fill');
+  fill.style.background = meta.gradient;
+  fill.style.width = (state.idx / total * 100) + '%';
+
+  document.getElementById('score-chip').textContent = `${state.score} correctas`;
+  document.getElementById('question-text').textContent = q.q;
+
+  const opts = document.getElementById('options');
+  opts.innerHTML = '';
+  ['A','B','C','D'].forEach((l, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.style.animationDelay = (i * 0.05) + 's';
+    btn.innerHTML = `<span class="opt-letter">${l}</span><span class="opt-text">${q.o[i]}</span>`;
+    btn.onclick = () => selectAnswer(i);
+    opts.appendChild(btn);
+  });
+
+  document.getElementById('feedback').innerHTML = '';
+  const nb = document.getElementById('next-btn');
+  nb.style.display = 'none';
+  nb.style.background = meta.gradient;
+  state.answered = false; state.selected = -1;
+}
+
+function selectAnswer(i) {
+  if (state.answered) return;
+  state.answered = true; state.selected = i;
+  const q = state.questions[state.idx];
+  const correct = q.a;
+  const isRight = i === correct;
+  if (isRight) state.score++;
+
+  document.getElementById('score-chip').textContent = `${state.score} correctas`;
+
+  document.querySelectorAll('.opt-btn').forEach((btn, idx) => {
+    btn.classList.add('disabled');
+    if (idx === correct) btn.classList.add('correct');
+    else if (idx === i && !isRight) btn.classList.add('wrong');
+    else btn.classList.add('faded');
+  });
+
+  const fb = document.getElementById('feedback');
+  fb.innerHTML = isRight
+    ? `<div class="feedback-box ok"><span class="feedback-icon">🎉</span><span>¡Correcto!</span></div>`
+    : `<div class="feedback-box fail"><span class="feedback-icon">💡</span><span>Incorrecto. La respuesta correcta es: <strong>${q.o[correct]}</strong></span></div>`;
+
+  const nb = document.getElementById('next-btn');
+  nb.style.display = 'block';
+  nb.textContent = state.idx + 1 >= state.questions.length ? 'Ver resultados' : 'Siguiente →';
+  document.getElementById('progress-fill').style.width = ((state.idx + 1) / state.questions.length * 100) + '%';
+}
+
+function nextQuestion() {
+  if (state.idx + 1 >= state.questions.length) showResults();
+  else { state.idx++; renderQuestion(); }
+}
+
+function showResults() {
+  showScreen('results');
+  const pct = Math.round(state.score / state.questions.length * 100);
+  const meta = state.unit === 'Todos' ? { gradient:'linear-gradient(135deg,#f43f5e,#a855f7)' } : UNIT_META[state.unit];
+  const emoji = pct >= 80 ? '🏆' : pct >= 60 ? '👍' : pct >= 40 ? '📚' : '💪';
+  const msg   = pct >= 80 ? '¡Excelente dominio!' : pct >= 60 ? '¡Buen trabajo!' : pct >= 40 ? 'Sigue practicando' : '¡A estudiar más!';
+
+  document.getElementById('res-emoji').textContent = emoji;
+  document.getElementById('res-title').textContent = msg;
+  document.getElementById('res-sub').textContent = `${state.unit} · ${state.questions.length} preguntas`;
+  document.getElementById('res-pct').textContent = pct + '%';
+  document.getElementById('res-pct').style.background = meta.gradient;
+  document.getElementById('res-pct').style.webkitBackgroundClip = 'text';
+  document.getElementById('res-pct').style.webkitTextFillColor = 'transparent';
+  document.getElementById('res-score').textContent = `${state.score} de ${state.questions.length} correctas`;
+
+  const bar = document.getElementById('res-bar');
+  bar.style.background = meta.gradient;
+  setTimeout(() => { bar.style.width = pct + '%'; }, 100);
+  document.getElementById('replay-btn').style.background = meta.gradient;
+}
+
+function replayQuiz() { startQuiz(state.unit); }
+function goMenu() { showScreen('menu'); }
+
+buildMenu();
+</script>
+</body>
+</html>
