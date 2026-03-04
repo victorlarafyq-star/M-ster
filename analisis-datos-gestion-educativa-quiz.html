@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Análisis de Datos y Gestión Educativa — Test</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080b12;
+    --surface: #0f1420;
+    --surface2: #161d2e;
+    --border: #1e2a40;
+    --text: #e8edf5;
+    --muted: #5a6a85;
+    --accent: #4f7cff;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 20% 20%, rgba(16,185,129,0.07) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 40% at 80% 80%, rgba(6,182,212,0.06) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1rem;
+  }
+
+  #screen-menu { width: 100%; max-width: 520px; }
+
+  .logo-block {
+    text-align: center;
+    margin-bottom: 2.5rem;
+    animation: fadeDown .5s ease both;
+  }
+  .logo-icon {
+    width: 64px; height: 64px;
+    background: linear-gradient(135deg, #10b981, #06b6d4);
+    border-radius: 18px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 0 40px rgba(16,185,129,0.25);
+  }
+  .logo-block h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: #fff;
+  }
+  .logo-block p {
+    color: var(--muted);
+    font-size: .85rem;
+    margin-top: .4rem;
+  }
+
+  .unit-list { display: flex; flex-direction: column; gap: .6rem; margin-bottom: 1rem; }
+
+  .unit-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: .9rem 1.1rem;
+    cursor: pointer;
+    display: flex; align-items: center; gap: .9rem;
+    transition: border-color .2s, transform .15s, background .2s;
+    animation: fadeUp .4s ease both;
+    text-align: left;
+    width: 100%;
+  }
+  .unit-btn:hover { border-color: #2d3f60; background: var(--surface2); transform: translateY(-1px); }
+  .unit-btn:active { transform: scale(.99); }
+
+  .unit-pill {
+    width: 4px; min-width: 4px; height: 40px;
+    border-radius: 99px;
+  }
+  .unit-info { flex: 1; min-width: 0; }
+  .unit-name {
+    font-family: 'Syne', sans-serif;
+    font-size: .9rem; font-weight: 700; color: #fff;
+  }
+  .unit-sub { font-size: .75rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: .15rem; }
+  .unit-count { font-size: .75rem; color: var(--muted); white-space: nowrap; }
+  .unit-arrow { color: var(--muted); font-size: 1rem; }
+
+  .mega-btn {
+    width: 100%;
+    padding: 1.1rem 1.4rem;
+    border-radius: 16px;
+    border: none;
+    cursor: pointer;
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem; font-weight: 700;
+    color: #fff;
+    background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
+    box-shadow: 0 8px 30px rgba(16,185,129,0.28);
+    display: flex; align-items: center; justify-content: space-between;
+    transition: opacity .2s, transform .15s;
+    animation: fadeUp .4s .35s ease both;
+  }
+  .mega-btn:hover { opacity: .92; transform: translateY(-1px); }
+  .mega-btn:active { transform: scale(.99); }
+  .mega-left { display: flex; align-items: center; gap: .75rem; }
+  .mega-left span:first-child { font-size: 1.4rem; }
+  .mega-title { font-size: 1rem; }
+  .mega-sub { font-size: .75rem; font-weight: 400; opacity: .75; }
+
+  #screen-quiz { width: 100%; max-width: 520px; }
+
+  .quiz-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 1rem;
+    animation: fadeDown .3s ease both;
+  }
+  .back-btn {
+    background: none; border: 1px solid var(--border);
+    border-radius: 8px; padding: .4rem .8rem;
+    color: var(--muted); font-size: .8rem; cursor: pointer;
+    transition: color .15s, border-color .15s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .back-btn:hover { color: var(--text); border-color: #2d3f60; }
+
+  .unit-tag {
+    font-size: .7rem; font-weight: 600; padding: .3rem .7rem;
+    border-radius: 99px; letter-spacing: .05em;
+  }
+  .counter { font-size: .8rem; color: var(--muted); }
+
+  .progress-bar {
+    height: 3px; background: var(--border); border-radius: 99px;
+    margin-bottom: 1.2rem; overflow: hidden;
+    animation: fadeDown .3s .1s ease both;
+  }
+  .progress-fill {
+    height: 100%; border-radius: 99px;
+    transition: width .5s cubic-bezier(.4,0,.2,1);
+  }
+
+  .score-chip {
+    display: inline-flex; align-items: center; gap: .4rem;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 99px; padding: .3rem .8rem;
+    font-size: .8rem; color: var(--text);
+    margin-bottom: 1.2rem;
+    animation: fadeDown .3s .15s ease both;
+  }
+  .score-chip .star { color: #f59e0b; }
+
+  .question-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 1.4rem;
+    margin-bottom: 1.1rem;
+    animation: fadeUp .3s .1s ease both;
+  }
+  .question-card p {
+    font-size: .97rem; line-height: 1.6; color: var(--text);
+  }
+
+  .options { display: flex; flex-direction: column; gap: .55rem; margin-bottom: 1.2rem; }
+
+  .opt-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: .9rem 1rem;
+    cursor: pointer;
+    display: flex; align-items: center; gap: .75rem;
+    transition: border-color .15s, background .15s, transform .1s;
+    text-align: left; width: 100%;
+    animation: fadeUp .3s ease both;
+  }
+  .opt-btn:hover:not(.disabled) { border-color: #2d3f60; background: var(--surface2); transform: translateY(-1px); }
+  .opt-btn:active:not(.disabled) { transform: scale(.99); }
+  .opt-btn.disabled { cursor: default; }
+
+  .opt-btn.correct {
+    background: rgba(16,185,129,0.12);
+    border-color: #10b981;
+  }
+  .opt-btn.wrong {
+    background: rgba(239,68,68,0.1);
+    border-color: #ef4444;
+  }
+  .opt-btn.faded { opacity: .4; }
+
+  .opt-letter {
+    width: 28px; height: 28px; min-width: 28px;
+    border-radius: 50%; border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: .75rem; font-family: 'Syne', sans-serif; font-weight: 700;
+    color: var(--muted);
+    transition: background .2s, border-color .2s, color .2s;
+  }
+  .opt-btn.correct .opt-letter { background: #10b981; border-color: #10b981; color: #fff; }
+  .opt-btn.wrong .opt-letter { background: #ef4444; border-color: #ef4444; color: #fff; }
+
+  .opt-text { font-size: .85rem; line-height: 1.4; color: var(--text); }
+  .opt-btn.faded .opt-text { color: var(--muted); }
+
+  .feedback-box {
+    border-radius: 12px; padding: .8rem 1rem;
+    display: flex; align-items: flex-start; gap: .6rem;
+    font-size: .85rem; line-height: 1.4;
+    animation: fadeUp .2s ease both;
+    margin-bottom: .8rem;
+  }
+  .feedback-box.ok { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); color: #6ee7b7; }
+  .feedback-box.fail { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3); color: #fca5a5; }
+  .feedback-icon { font-size: 1rem; flex-shrink: 0; }
+
+  .next-btn {
+    width: 100%;
+    padding: .9rem;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    font-family: 'Syne', sans-serif; font-size: .95rem; font-weight: 700;
+    color: #fff;
+    transition: opacity .2s, transform .1s;
+    animation: fadeUp .25s ease both;
+  }
+  .next-btn:hover { opacity: .88; }
+  .next-btn:active { transform: scale(.99); }
+
+  #screen-results { width: 100%; max-width: 420px; text-align: center; }
+
+  .result-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 2.5rem 2rem;
+    margin-bottom: 1.2rem;
+    animation: fadeUp .4s ease both;
+  }
+  .result-emoji { font-size: 3.5rem; margin-bottom: 1rem; }
+  .result-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.4rem; font-weight: 800; color: #fff;
+    margin-bottom: .3rem;
+  }
+  .result-sub { font-size: .82rem; color: var(--muted); margin-bottom: 1.5rem; }
+  .result-pct {
+    font-family: 'Syne', sans-serif;
+    font-size: 5rem; font-weight: 800;
+    line-height: 1;
+    margin-bottom: .3rem;
+  }
+  .result-score { font-size: .85rem; color: var(--muted); margin-bottom: 1.5rem; }
+  .result-bar {
+    height: 8px; background: var(--border); border-radius: 99px; overflow: hidden;
+  }
+  .result-bar-fill {
+    height: 100%; border-radius: 99px;
+    transition: width 1s cubic-bezier(.4,0,.2,1);
+  }
+
+  .result-actions { display: flex; flex-direction: column; gap: .7rem; animation: fadeUp .4s .1s ease both; }
+
+  .btn-outline {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: .9rem;
+    border-radius: 12px;
+    cursor: pointer;
+    font-family: 'Syne', sans-serif; font-size: .9rem; font-weight: 700;
+    transition: background .15s, border-color .15s;
+  }
+  .btn-outline:hover { background: var(--surface2); border-color: #2d3f60; }
+
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .unit-btn:nth-child(1) { animation-delay: .05s }
+  .unit-btn:nth-child(2) { animation-delay: .10s }
+  .unit-btn:nth-child(3) { animation-delay: .15s }
+  .unit-btn:nth-child(4) { animation-delay: .20s }
+  .unit-btn:nth-child(5) { animation-delay: .25s }
+  .unit-btn:nth-child(6) { animation-delay: .30s }
+
+  .opt-btn:nth-child(1) { animation-delay: .05s }
+  .opt-btn:nth-child(2) { animation-delay: .10s }
+  .opt-btn:nth-child(3) { animation-delay: .15s }
+  .opt-btn:nth-child(4) { animation-delay: .20s }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- MENU -->
+  <div id="screen-menu" class="screen active">
+    <div class="logo-block">
+      <div class="logo-icon">📊</div>
+      <h1>Análisis de Datos y Gestión Educativa</h1>
+      <p>Elige un tema para practicar o pon a prueba todos los contenidos</p>
+    </div>
+    <div class="unit-list" id="unit-list"></div>
+    <button class="mega-btn" onclick="startQuiz('Todas')">
+      <div class="mega-left">
+        <span>⚡</span>
+        <div>
+          <div class="mega-title">Test Completo</div>
+          <div class="mega-sub">60 preguntas · Todas las unidades</div>
+        </div>
+      </div>
+      <span>→</span>
+    </button>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="screen-quiz" class="screen">
+    <div class="quiz-header">
+      <button class="back-btn" onclick="goMenu()">← Menú</button>
+      <span class="unit-tag" id="quiz-tag"></span>
+      <span class="counter" id="quiz-counter"></span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+    <div class="score-chip"><span class="star">★</span> <span id="score-chip">0 correctas</span></div>
+    <div class="question-card"><p id="question-text"></p></div>
+    <div class="options" id="options"></div>
+    <div id="feedback"></div>
+    <button class="next-btn" id="next-btn" style="display:none" onclick="nextQuestion()"></button>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="screen-results" class="screen">
+    <div class="result-card">
+      <div class="result-emoji" id="res-emoji"></div>
+      <div class="result-title" id="res-title"></div>
+      <div class="result-sub" id="res-sub"></div>
+      <div class="result-pct" id="res-pct"></div>
+      <div class="result-score" id="res-score"></div>
+      <div class="result-bar"><div class="result-bar-fill" id="res-bar"></div></div>
+    </div>
+    <div class="result-actions">
+      <button class="next-btn" id="replay-btn" onclick="replayQuiz()">🔄 Repetir este test</button>
+      <button class="btn-outline" onclick="goMenu()">← Volver al menú principal</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const ALL_QUESTIONS = {
+  "Unidad 1": [
+    {q:"En el ejemplo de EDM para la detección temprana del fracaso escolar, ¿qué característica es esencial para el modelo predictivo?",o:["Se apoya en un análisis estadístico a partir de observaciones del tutor, sin modelos computacionales.","Rechaza cualquier tipo de transformación de datos, puesto que las variables deben utilizarse exactamente en el formato en que fueron recogidas.","Se basa en información recogida del profesorado y su opinión sobre el alumnado sin recurrir a registros históricos cuantitativos.","Integra datos procedentes de múltiples fuentes (calificaciones, asistencia, datos socioeconómicos, trazas del aula virtual) tras un preprocesamiento riguroso para identificar patrones asociados al abandono."],a:3},
+    {q:"¿Cuál de las siguientes afirmaciones describe mejor la aportación específica de la Ciencia de Datos Educativos (EDS)?",o:["Aplica técnicas de minería de datos al contexto educativo, con la ventaja de no necesitar teoría pedagógica explícita.","Integra tecnología, pedagogía y ética para extraer conocimiento accionable de los datos educativos y transformar ese conocimiento en decisiones que mejoren la enseñanza y el aprendizaje.","Se centra en automatizar decisiones sobre el alumnado, reduciendo la carga de trabajo del profesorado que pasa a supervisión técnica.","Tiene como finalidad principal sustituir los métodos tradicionales de evaluación por sistemas algorítmicos más fiables."],a:1},
+    {q:"En el proceso KDD, ¿qué conjunto de actividades pertenece íntegramente a la fase de preprocesamiento?",o:["Selección de técnicas y algoritmos, entrenamiento y visualización de resultados.","Selección de analíticas, informe y visualización de resultados.","Limpieza de datos, integración de datos, selección de datos y transformación de datos.","Anonimización, integridad, análisis descriptivo y predictivo."],a:2},
+    {q:"¿Cuál de las siguientes afirmaciones refleja con mayor fidelidad el concepto de huella digital en educación?",o:["La huella digital en educación se compone de calificaciones y resultados de pruebas estandarizadas y otra información de interacción con recursos digitales de aprendizaje.","La huella digital se compone de datos demográficos y socioeconómicos del alumnado, almacenados en sistemas de gestión de información institucionales.","La huella digital incluye datos biométricos y de análisis de sentimiento, con gran potencial para los procesos analíticos educativos.","La huella digital es el rastro de datos que deja la actividad del individuo en entornos tecnológicos, cuya acumulación masiva posibilita el uso de técnicas de IA y ciencia de datos para obtener información."],a:3},
+    {q:"¿Qué rasgo clave define el enfoque Data-Driven de Chris Anderson presentado en la unidad?",o:["La idea de que el Big Data solo es útil en ciencias experimentales y no resulta aplicable a contextos humanistas.","La defensa de que la correlación puede reemplazar a la causalidad, prescindiendo de marcos teóricos previos gracias a la disponibilidad masiva de datos.","La afirmación de que los modelos teóricos son imprescindibles incluso cuando se dispone de grandes volúmenes de datos y alta capacidad computacional.","La propuesta de que las Analíticas de Aprendizaje deben basarse exclusivamente en métodos cualitativos y no en datos masivos."],a:1},
+    {q:"¿Cuál de las siguientes afirmaciones recoge mejor la lógica de las Analíticas de Aprendizaje (LA) y el papel de sus actores?",o:["El propósito principal de las LA es generar informes para mejorar el rendimiento del alumnado en las pruebas estandarizadas.","Las LA son posibles gracias a los datos, pero están guiadas por decisiones humanas, orientadas a optimizar el aprendizaje del estudiante, la práctica docente y la gestión educativa mediante intervenciones informadas.","Las LA conforman el pilar de la gobernanza digital e interesan únicamente a los gestores institucionales que interpretan los datos y toman decisiones.","Las LA automatizan la toma de decisiones, apoyando al profesorado y a los gestores educativos con evidencias basadas en datos."],a:1},
+    {q:"¿Cuál de las siguientes afirmaciones describe mejor la relación entre AIED, EDM y LA?",o:["LA se orienta al entrenamiento de algoritmos, EDM a contrastar teorías pedagógicas y AIED a sistemas conversacionales.","EDM diseña tutores inteligentes, AIED se limita a describir datos históricos y LA se ocupa de la gestión institucional.","AIED y LA son términos equivalentes, mientras que EDM se ocupa del desarrollo de plataformas de aprendizaje adaptativo basado en datos.","AIED se centra en sistemas inteligentes (como tutores), EDM en desarrollar métodos computacionales para explorar datos educativos, y LA en aplicar esos patrones y modelos para comprender y optimizar el aprendizaje."],a:3},
+    {q:"Según el MRCDD, ¿cuál es el foco principal de la competencia 4.2 'Analíticas y evidencias de aprendizaje'?",o:["Diseñar y programar algoritmos de aprendizaje automático que complementen la intervención pedagógica del profesorado.","Gestionar el ciclo de vida de la evidencia digital generada por el alumnado, desde su generación y almacenamiento hasta su selección, análisis e interpretación.","Configurar sistemas de gestión de aprendizaje para maximizar la cantidad de datos recogidos.","Garantizar el cumplimiento de la normativa de protección de datos y la salvaguarda de la privacidad."],a:1},
+    {q:"¿Cuál de las siguientes situaciones ilustra mejor un uso PRESCRIPTIVO del análisis de datos educativos?",o:["Un sistema que, tras predecir qué estudiantes tienen alto riesgo de abandono, sugiere al profesorado las intervenciones pedagógicas más adecuadas para reducir ese riesgo.","Un panel que muestra, con visualizaciones avanzadas, las medias de las calificaciones por grupo y asignatura.","Un informe que describe qué perfiles de interacción con la plataforma se han asociado históricamente al éxito académico.","Un modelo que estima la probabilidad de suspenso de cada estudiante a partir de sus calificaciones y asistencias previas."],a:0},
+    {q:"¿Cuál es la secuencia correcta de las fases del ciclo de las Analíticas de Aprendizaje propuesto por Doug Clow?",o:["Aprendices (generan datos) → Datos (se recopilan y analizan) → Métricas/conocimiento (patrones y modelos) → Intervención (acciones pedagógicas que generan nuevos datos).","Aprendices (reciben retroalimentación) → Intervención (se modifica el currículo) → Datos (se procesan) → Métricas (se escogen).","Intervención (acciones colegiadas) → Métricas (se seleccionan indicadores) → Aprendices (se clasifican) → Datos (se almacenan para su tratamiento).","Datos (se recopilan) → Aprendices (interpretan los resultados) → Intervención (se recogen opiniones) → Métricas (se calculan estadísticas finales)."],a:0},
+  ],
+  "Unidad 2": [
+    {q:"En el ejemplo de EDM para la detección temprana del fracaso escolar, ¿qué característica es esencial para el modelo predictivo? (U2)",o:["Se apoya en un análisis estadístico a partir de observaciones del tutor, sin modelos computacionales.","Rechaza cualquier tipo de transformación de datos, puesto que las variables deben utilizarse exactamente en el formato en que fueron recogidas.","Se basa en información recogida del profesorado y su opinión sobre el alumnado sin recurrir a registros históricos cuantitativos.","Integra datos procedentes de múltiples fuentes (calificaciones, asistencia, datos socioeconómicos, trazas del aula virtual) tras un preprocesamiento riguroso para identificar patrones asociados al abandono."],a:3},
+    {q:"¿Cuál de las siguientes afirmaciones describe mejor la aportación específica de la Ciencia de Datos Educativos (EDS)? (U2)",o:["Aplica técnicas de minería de datos al contexto educativo, con la ventaja de no necesitar teoría pedagógica explícita.","Integra tecnología, pedagogía y ética para extraer conocimiento accionable de los datos educativos y transformar ese conocimiento en decisiones que mejoren la enseñanza y el aprendizaje.","Se centra en automatizar decisiones sobre el alumnado, reduciendo la carga de trabajo del profesorado que pasa a supervisión técnica.","Tiene como finalidad principal sustituir los métodos tradicionales de evaluación por sistemas algorítmicos más fiables."],a:1},
+    {q:"En el proceso KDD, ¿qué actividades pertenecen íntegramente a la fase de preprocesamiento? (U2)",o:["Selección de técnicas y algoritmos, entrenamiento y visualización de resultados.","Selección de analíticas, informe y visualización de resultados.","Limpieza de datos, integración de datos, selección de datos y transformación de datos.","Anonimización, integridad, análisis descriptivo y predictivo."],a:2},
+    {q:"¿Cuál de las siguientes afirmaciones refleja mejor el concepto de huella digital en educación? (U2)",o:["La huella digital en educación se compone de calificaciones y resultados de pruebas estandarizadas y otra información de interacción con recursos digitales de aprendizaje.","La huella digital se compone de datos demográficos y socioeconómicos del alumnado, almacenados en sistemas de gestión de información institucionales.","La huella digital incluye datos biométricos y de análisis de sentimiento, con gran potencial para los procesos analíticos educativos.","La huella digital es el rastro de datos que deja la actividad del individuo en entornos tecnológicos, cuya acumulación masiva posibilita el uso de técnicas de IA y ciencia de datos para obtener información."],a:3},
+    {q:"¿Qué rasgo clave define el enfoque Data-Driven de Chris Anderson? (U2)",o:["La idea de que el Big Data solo es útil en ciencias experimentales y no resulta aplicable a contextos humanistas.","La defensa de que la correlación puede reemplazar a la causalidad, prescindiendo de marcos teóricos previos gracias a la disponibilidad masiva de datos.","La afirmación de que los modelos teóricos son imprescindibles incluso cuando se dispone de grandes volúmenes de datos y alta capacidad computacional.","La propuesta de que las Analíticas de Aprendizaje deben basarse exclusivamente en métodos cualitativos y no en datos masivos."],a:1},
+    {q:"¿Cuál de las siguientes afirmaciones recoge mejor la lógica de las Analíticas de Aprendizaje (LA)? (U2)",o:["El propósito principal de las LA es generar informes para mejorar el rendimiento del alumnado en las pruebas estandarizadas.","Las LA son posibles gracias a los datos, pero están guiadas por decisiones humanas, orientadas a optimizar el aprendizaje del estudiante, la práctica docente y la gestión educativa mediante intervenciones informadas.","Las LA conforman el pilar de la gobernanza digital e interesan únicamente a los gestores institucionales que interpretan los datos y toman decisiones.","Las LA automatizan la toma de decisiones, apoyando al profesorado y a los gestores educativos con evidencias basadas en datos."],a:1},
+    {q:"¿Cuál de las siguientes afirmaciones describe mejor la relación entre AIED, EDM y LA? (U2)",o:["LA se orienta al entrenamiento de algoritmos, EDM a contrastar teorías pedagógicas y AIED a sistemas conversacionales.","EDM diseña tutores inteligentes, AIED se limita a describir datos históricos y LA se ocupa de la gestión institucional.","AIED y LA son términos equivalentes, mientras que EDM se ocupa del desarrollo de plataformas de aprendizaje adaptativo basado en datos.","AIED se centra en sistemas inteligentes (como tutores), EDM en desarrollar métodos computacionales para explorar datos educativos, y LA en aplicar esos patrones y modelos para comprender y optimizar el aprendizaje."],a:3},
+    {q:"Según el MRCDD, ¿cuál es el foco principal de la competencia 4.2 'Analíticas y evidencias de aprendizaje'? (U2)",o:["Diseñar y programar algoritmos de aprendizaje automático que complementen la intervención pedagógica del profesorado.","Gestionar el ciclo de vida de la evidencia digital generada por el alumnado, desde su generación y almacenamiento hasta su selección, análisis e interpretación.","Configurar sistemas de gestión de aprendizaje para maximizar la cantidad de datos recogidos.","Garantizar el cumplimiento de la normativa de protección de datos y la salvaguarda de la privacidad."],a:1},
+    {q:"¿Cuál de las siguientes situaciones ilustra mejor un uso PRESCRIPTIVO del análisis de datos educativos? (U2)",o:["Un sistema que, tras predecir qué estudiantes tienen alto riesgo de abandono, sugiere al profesorado las intervenciones pedagógicas más adecuadas para reducir ese riesgo.","Un panel que muestra, con visualizaciones avanzadas, las medias de las calificaciones por grupo y asignatura.","Un informe que describe qué perfiles de interacción con la plataforma se han asociado históricamente al éxito académico.","Un modelo que estima la probabilidad de suspenso de cada estudiante a partir de sus calificaciones y asistencias previas."],a:0},
+    {q:"¿Cuál es la secuencia correcta de las fases del ciclo de las Analíticas de Aprendizaje propuesto por Doug Clow? (U2)",o:["Aprendices (generan datos) → Datos (se recopilan y analizan) → Métricas/conocimiento (patrones y modelos) → Intervención (acciones pedagógicas que generan nuevos datos).","Aprendices (reciben retroalimentación) → Intervención (se modifica el currículo) → Datos (se procesan) → Métricas (se escogen).","Intervención (acciones colegiadas) → Métricas (se seleccionan indicadores) → Aprendices (se clasifican) → Datos (se almacenan para su tratamiento).","Datos (se recopilan) → Aprendices (interpretan los resultados) → Intervención (se recogen opiniones) → Métricas (se calculan estadísticas finales)."],a:0},
+  ],
+  "Unidad 3": [
+    {q:"¿Qué afirmación sobre estadística inferencial y estadística descriptiva es correcta?",o:["La inferencia se centra en representar visualmente los datos, mientras que la descriptiva se ocupa solo de cálculos numéricos.","La inferencia permite formular conclusiones y estimaciones sobre una población a partir de una muestra.","La descriptiva trabaja con muestras y la inferencial exclusivamente con poblaciones completas.","La descriptiva se basa en métodos deterministas y la inferencial en métodos cualitativos no cuantificables."],a:1},
+    {q:"En relación con las reglas de asociación en analíticas de aprendizaje, ¿qué combinación describe correctamente soporte y confianza?",o:["El soporte representa la frecuencia con la que aparece el antecedente, y la confianza la probabilidad de que ocurra el resultado cuando se cumplen las condiciones.","El soporte se refiere al intervalo de confianza de la regla y la confianza al nivel de significación estadística.","La confianza es el soporte de la regla, y representa las veces que se cumple una regla, dado su antecedente.","El soporte mide la dificultad de una regla para que se cumpla y la confianza su peso estimado."],a:2},
+    {q:"En el contexto del aprendizaje supervisado en educación, ¿qué preocupación motiva el desarrollo de la IA explicable (XAI)?",o:["Sustituir todos los modelos simples y transparentes por redes neuronales profundas con mayor precisión.","Reducir el papel de expertos en pedagogía en la interpretación de resultados.","Hacer comprensibles, auditables y justificables las decisiones de modelos complejos.","Evitar el uso de cualquier técnica de clasificación."],a:2},
+    {q:"Al analizar la actividad Cuestionario de Moodle, ¿qué indicador resulta más adecuado para valorar la capacidad de una pregunta para distinguir entre niveles de rendimiento?",o:["Índice de discriminación o eficiencia discriminatoria.","Ponderación deseada.","Índice de facilidad.","Calificación aleatoria estimada."],a:0},
+    {q:"En estadística descriptiva aplicada a educación, ¿qué medidas permiten valorar rendimiento típico y homogeneidad?",o:["Rango y número de categorías.","Varianza y casos atípicos.","Media o mediana + desviación estándar o rango intercuartílico.","Moda y rango intercuartílico."],a:2},
+    {q:"En relación con los enfoques descriptivo, diagnóstico, predictivo y prescriptivo, ¿qué opción sigue la lógica progresiva correcta?",o:["El diagnóstico y el predictivo son equivalentes.","Descriptivo + diagnóstico para comprender; predictivo + prescriptivo para anticipar y actuar.","El descriptivo propone acciones.","El prescriptivo recomienda, el diagnóstico anticipa, el predictivo explica."],a:1},
+    {q:"En aprendizaje automático no supervisado aplicado a educación, ¿qué uso describe mejor el clustering?",o:["Predicción del abandono con variables etiquetadas.","Puntuación de riesgo con reglas predefinidas.","Ordenar alumnado por rendimiento.","Agrupar estudiantes según patrones sin etiqueta objetivo previa."],a:3},
+    {q:"¿Cuál es el sentido fundamental del análisis de datos educativos?",o:["Sustituir reflexión pedagógica por decisiones automáticas.","Transformar datos en conocimiento para decisiones pedagógicas basadas en evidencias.","Probar superioridad del enfoque cuantitativo.","Acumular el mayor volumen de datos."],a:1},
+    {q:"¿Cuál es la clasificación correcta de algoritmos de aprendizaje automático?",o:["Redes neuronales, K-Medias y SVM son supervisados; árboles y Apriori no supervisados.","Árboles y SVM supervisados; redes neuronales o K-Medias no supervisados.","Redes neuronales, algoritmos genéticos y SVM supervisados; SVM y Apriori no supervisados.","Redes neuronales, árboles de decisión y SVM supervisados; K-Medias y Apriori no supervisados."],a:3},
+    {q:"¿Cuál es el papel de la visualización de datos en analíticas de aprendizaje?",o:["Mostrar resultados solo a investigadores.","Las tablas son suficientes.","Actúa como mediación cognitiva que facilita la interpretación pedagógica y la toma de decisiones.","Guiar a los modelos de IA."],a:2},
+  ],
+  "Unidad 4": [
+    {q:"Si asistimos con analíticas de datos educativos el diseño instruccional, ¿qué haremos en la fase de evaluación?",o:["Todas las respuestas son correctas.","Calcular calificaciones y datos cualitativos de retroalimentación para informar a alumnado, profesorado, familias y administración.","Valorar la satisfacción percibida del alumnado en el proceso de enseñanza-aprendizaje.","Revisar la calidad de la experiencia formativa en su conjunto para realimentar y mejorar las fases anteriores del diseño."],a:0},
+    {q:"¿Qué ventaja encontramos en las soluciones integradas en plataformas como Moodle o Google Classroom frente a desarrollos de dashboards a medida?",o:["Evitan que el profesorado tenga que interpretar los datos, ya que proporcionan conclusiones pedagógicas automatizadas.","Eliminan la necesidad de cualquier conocimiento técnico sobre datos o estadística por parte de los equipos docentes.","Hacen más accesible el uso de analíticas al aprovechar entornos ya implantados en los centros.","Ninguna respuesta es correcta."],a:2},
+    {q:"¿Qué tecnología puede tener un mayor impacto en la retroalimentación formativa eficaz descrita por Hattie y Timperley?",o:["KDD: Knowledge Discovery in Databases.","Los sistemas de tutoría inteligente basados en LLM.","Las analíticas descriptivas.","La visualización de datos avanzada."],a:1},
+    {q:"En el ámbito de la gestión educativa, ¿qué caracteriza al enfoque de Data-Driven Decision Making (DDDM)?",o:["Utilizar exclusivamente métricas económicas para orientar la planificación de recursos.","Basar las decisiones de centro únicamente en informes cualitativos y percepciones de los equipos directivos.","Priorizar las demandas externas sobre los datos internos del sistema educativo.","Ninguna respuesta es correcta."],a:3},
+    {q:"¿Qué característica de las prácticas guiadas (practice sets) de Google Classroom se destaca como relevante para el aprendizaje adaptativo?",o:["Todas las respuestas son correctas.","Se apoyan en IA para ofrecer ayuda y retroalimentación adaptada al rendimiento del alumnado.","Presentan los resultados en una visualización que resume el desempeño individual.","Presentan los resultados en una visualización que resume el desempeño grupal."],a:0},
+    {q:"¿Cuál es la utilidad de los dashboards educativos en la orientación y el seguimiento del alumnado?",o:["Todas las respuestas son correctas.","Determinan automáticamente qué intervención debe realizar el docente en cada momento.","Sustituyen a las reuniones de coordinación docente.","Funcionan como apoyo a la evaluación formativa, ofreciendo indicadores y alertas que el profesorado debe interpretar críticamente."],a:3},
+    {q:"¿Cuál de las siguientes afirmaciones es más precisa sobre qué puede aportar la ciencia de datos educativos al trabajo docente en el aula?",o:["Asegura que las percepciones del profesorado siempre coincidan con los datos.","Permite sustituir las observaciones cualitativas del profesorado por indicadores numéricos.","Garantiza automáticamente el logro de los objetivos curriculares.","Proporciona evidencias sobre el funcionamiento real de las propuestas didácticas y de los instrumentos de evaluación."],a:3},
+    {q:"¿Cuál de las siguientes formulaciones refleja mejor los objetivos de la personalización del aprendizaje sustentada en ciencia de datos educativos?",o:["Organizar al alumnado en grupos homogéneos y aplicar el mismo itinerario.","Sugerir actividades y recorridos ajustados al desempeño, apoyar la autorregulación y adaptar continuamente la propuesta educativa.","Diferenciar al alumnado por su perfil demográfico.","Todas las opciones son correctas."],a:1},
+    {q:"¿De qué manera pueden contribuir las analíticas de aprendizaje a las decisiones curriculares en administraciones y centros?",o:["Sustituyendo el examen final como único indicador válido.","Detectando dificultades curriculares y mejorando la alineación entre objetivos, instrucción y evaluación.","Reemplazando los criterios pedagógicos por algoritmos.","Uniformizando los currículos para todos los contextos."],a:1},
+    {q:"¿Qué riesgo o preocupación puedes identificar respecto al uso intensivo de sistemas de personalización y aprendizaje adaptativo soportados por IA?",o:["Que la personalización derive en individualización excesiva y limite el sentido amplio de la educación.","Que se prioricen actividades lúdicas frente a contenidos curriculares.","Que el alumnado abandone el uso de la tecnología educativa.","Que el alumnado perciba mejores resultados sin esfuerzo."],a:0},
+  ],
+  "Unidad 5": [
+    {q:"¿Cuál de los siguientes puntos del GDPR resulta especialmente relevante para la ciencia de datos educativos?",o:["Todas las respuestas son correctas.","La prohibición absoluta de utilizar supervisión invasiva y técnicas biométricas en educación.","El derecho de acceso, el derecho al olvido, la portabilidad de datos y la protección de datos desde el diseño y por defecto.","La obligación de publicar todos los datos recogidos en portales de transparencia institucional."],a:2},
+    {q:"¿Qué condición se considera necesaria para que las analíticas de aprendizaje no refuercen prácticas discriminatorias existentes?",o:["Garantizar que todos los algoritmos utilizados sean de código abierto como ejercicio de transparencia.","Ninguna respuesta es correcta.","Usar exclusivamente datos numéricos, evitando cualquier información cualitativa o contextual.","Delegar el diseño de modelos a equipos técnicos externos (y no condicionados) a los centros educativos."],a:1},
+    {q:"Un modelo de datos confiable se caracteriza por...",o:["Robustez, interpretabilidad/explicabilidad, trazabilidad y justicia/equidad en su comportamiento.","Todas las respuestas son correctas.","Capacidad de procesar datos en diferentes formatos y cifrado extremo-a-extremo, para asegurar la privacidad.","Desempeño adecuado, diseño responsive y facilidad de uso."],a:0},
+    {q:"¿Qué posible efecto negativo se menciona en la unidad sobre la recogida de datos continua?",o:["Aumento de la competitividad del alumnado, que busca destacar en las métricas.","Saturación de los sistemas informáticos del centro.","Disminución generalizada del rendimiento académico por distracción tecnológica.","Efecto inhibidor en la participación y expresión del alumnado y pérdida de confianza."],a:3},
+    {q:"¿Cuáles de los siguientes pueden considerarse objetivos de dimensión ética para la ciencia de datos educativos?",o:["Maximizar la productividad docente, automatizando la evaluación y tareas burocráticas o repetitivas.","Controlar estrictamente el uso deshonesto de la tecnología por parte del alumnado.","El éxito de todo el alumnado y el acceso equitativo a la educación.","Reducir la confiabilidad de las instituciones, el respeto a la privacidad y la protección del alumnado."],a:2},
+    {q:"¿Por qué la estrategia de 'equidad a través del desconocimiento' (fairness through unawareness) puede resultar problemática?",o:["Porque eliminar variables sensibles no evita que su efecto esté presente a través de otras variables correlacionadas.","Porque al eliminar las características protegidas se pierde demasiada info y el modelo no converge hacia una solución robusta.","Porque eliminar las variables sensibles hace que otras variables pasen a ser las sensibles en su lugar.","Porque impide aplicar algoritmos de aprendizaje automático y obliga a usar, únicamente, técnicas estadísticas."],a:0},
+    {q:"¿Cuándo está justificado el uso (análisis y explotación) de datos en educación?",o:["Cuando contribuye al aprendizaje y bienestar del alumnado y respeta requisitos de justicia, equidad y transparencia.","Todas las respuestas son correctas.","Siempre que aporten una ventaja al centro educativo y al alumnado, con independencia de otros factores.","Cuando se dispone de infraestructura técnica suficiente para almacenar y procesar grandes volúmenes de información."],a:0},
+    {q:"Desde una perspectiva ética, ¿por qué se considera insuficiente el enfoque inicial de la minería de datos educativos cercano a la tesis de Anderson ('los datos hablan por sí solos')?",o:["Porque la cantidad de datos en educación es todavía pequeña y no permite extraer patrones relevantes.","Porque los algoritmos más avanzados son demasiado costosos para aplicarlos de forma generalizada en educación.","Porque los datos no capturan dimensiones esenciales de la experiencia educativa.","Porque los datos educativos contienen siempre errores técnicos que impiden cualquier análisis riguroso."],a:2},
+    {q:"El nombre de la checklist DELICATE es un acrónimo. Elige la combinación correcta.",o:["E: explicación; C: consentimiento; T: tolerancia y A: anonimización.","D: desestimiento; C: consentimiento; T: tolerancia y A: anonimización.","E: explicación; C: consentimiento; L: legitimación y A: anonimización.","D: desestimiento; C: consentimiento; T: aspectos técnicos y A: anonimización."],a:2},
+    {q:"¿Qué riesgo central plantean los sesgos algorítmicos en educación?",o:["Que se impida el uso de métodos estadísticos avanzados en los centros educativos por razones legales.","Que modelos entrenados con datos sesgados refuercen desigualdades estructurales y perjudiquen a colectivos vulnerables.","Todas las opciones son correctas.","Que los sistemas de recomendación se vuelvan demasiado complejos para ser entendidos por el personal docente."],a:1},
+  ],
+  "Unidad 6": [
+    {q:"En el marco de competencias docentes en IA (UNESCO), ¿qué área se caracteriza por situar la dignidad, los derechos y el bienestar de las personas en el centro del uso educativo de la IA?",o:["IA para el desarrollo profesional docente","Mentalidad centrada en lo humano","Pedagogía con IA","Fundamentos y aplicaciones de IA"],a:1},
+    {q:"¿Qué idea recoge el artículo 83 de la LOPDGDD sobre el derecho a la educación digital?",o:["Que el sistema educativo debe garantizar la inserción del alumnado en la sociedad digital y el aprendizaje de un consumo responsable y un uso crítico y seguro de los medios digitales.","Que el sistema educativo debe promover el uso de medios digitales en el aula para reducir la brecha digital (si la comunidad autónoma lo permite).","Todas las respuestas son correctas","Que el alumnado solo puede usar dispositivos propios (BYOD) si la familia lo autoriza por escrito cada trimestre"],a:0},
+    {q:"¿Qué elemento incorpora como novedad el documento europeo 'Directrices éticas sobre el uso de la IA y los datos en la educación y formación para los educadores'?",o:["El bienestar social y medioambiental, entendido como sostenibilidad, impacto social y relación con la sociedad y la democracia.","La prohibición total de emplear herramientas de IA en contextos de evaluación","La exigencia de que todos los sistemas de IA sean auditados anualmente por la Comisión Europea","La obligatoriedad de usar únicamente software de código abierto en los centros educativos"],a:0},
+    {q:"¿Qué afirmación se ajusta mejor al propósito del 'Informe sobre menores, salud digital y privacidad' de la AEPD?",o:["Establecer sanciones económicas para centros que incumplan normas de uso de pantallas","Ninguna respuesta es correcta","Recomendar la prohibición del acceso a Internet a personas menores de edad","Sustituir los móviles personales por dispositivos facilitados por los centros y administraciones educativas"],a:1},
+    {q:"¿Cuál de las siguientes prácticas se menciona como expresamente prohibida por la AI Act en el contexto educativo europeo?",o:["El uso de cuestionarios en línea para recoger el sentir del alumnado sobre una asignatura","Todas las opciones son correctas","La vigilancia biométrica y la identificación emocional intrusiva","La visualización de calificaciones y otros datos sensibles en dashboards para el profesorado"],a:2},
+    {q:"¿Cuál de las siguientes prácticas ejemplifica a la vez una tendencia emergente y una línea que la AI Act restringe o prohíbe en Europa?",o:["Todas las opciones son correctas","El aprendizaje adaptativo basado en datos históricos del desempeño de alumnado de promociones anteriores","La recolección de discursos y debates del alumnado de forma automática para su tratamiento por agentes conversacionales","La medición del estado emocional y la concentración del alumnado mediante reconocimiento facial o sensores biométricos en el aula"],a:3},
+    {q:"¿Qué limitación importante puedes señalar respecto a la actualización del marco DigCompEdu en relación con la IA?",o:["Todas las respuestas son correctas","Que tanto las directrices éticas como la revisión propuesta del marco son anteriores a la irrupción de la IA generativa y requieren una nueva actualización","Que solo contempla el uso de IA en materias STEM y excluye el resto de áreas curriculares","Que prohíbe explícitamente que el alumnado interactúe de manera directa con sistemas de IA"],a:1},
+    {q:"Según la AI Act, ¿qué requisito clave deben cumplir los sistemas de IA considerados de alto riesgo en educación?",o:["Todas las opciones son correctas","Delegar todas las decisiones finales en el algoritmo para evitar sesgos humanos","Utilizar datos de calidad y libres de sesgos, ofrecer explicaciones comprensibles, garantizar supervisión humana y mantener registros auditables","Garantizar que sus decisiones no puedan ser revisadas para proteger la propiedad intelectual del proveedor"],a:2},
+    {q:"¿Cuál de las siguientes funciones describe mejor el papel de la persona delegada de protección de datos (DPD) en el contexto educativo?",o:["Asesorar e informar sobre la aplicación de la normativa de protección de datos","Supervisar el cumplimiento de la normativa de protección de datos","Actuar como interlocutor con personas afectadas en el posible incumplimiento de la normativa de protección de datos","Todas las respuestas son correctas"],a:3},
+    {q:"Si hablamos de individualización de la enseñanza y aprendizaje adaptativo, ¿qué quiere decir 'adaptación inversa'?",o:["La sustitución progresiva de las tareas digitales por actividades analógicas para proteger al alumnado","La obligación de adaptar todos los sistemas de IA a los estándares educativos internacionales y no al revés","Centrar las prácticas educativas en aquello que los medios técnicos y los datos pueden capturar y medir","El ajuste de los algoritmos para que imiten las decisiones que actualmente toma el profesorado de forma intuitiva"],a:2},
+  ],
+};
+
+const UNIT_META = {
+  "Unidad 1": { color:"#34d399", gradient:"linear-gradient(135deg,#10b981,#34d399)", sub:"Introducción: EDM, EDS, LA y huella digital" },
+  "Unidad 2": { color:"#38bdf8", gradient:"linear-gradient(135deg,#0ea5e9,#38bdf8)", sub:"Fundamentos y ciclo de las analíticas" },
+  "Unidad 3": { color:"#a78bfa", gradient:"linear-gradient(135deg,#8b5cf6,#a78bfa)", sub:"Estadística, algoritmos y visualización" },
+  "Unidad 4": { color:"#fb923c", gradient:"linear-gradient(135deg,#f97316,#fb923c)", sub:"Aplicaciones: diseño instruccional y dashboards" },
+  "Unidad 5": { color:"#f472b6", gradient:"linear-gradient(135deg,#ec4899,#f472b6)", sub:"Ética, privacidad y sesgos algorítmicos" },
+  "Unidad 6": { color:"#fbbf24", gradient:"linear-gradient(135deg,#f59e0b,#fbbf24)", sub:"Marcos normativos, AI Act y DigCompEdu" },
+};
+
+let state = { unit: null, questions: [], idx: 0, score: 0, answered: false, selected: -1 };
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+}
+
+function buildMenu() {
+  const list = document.getElementById('unit-list');
+  list.innerHTML = '';
+  Object.entries(UNIT_META).forEach(([unit, meta]) => {
+    const count = ALL_QUESTIONS[unit].length;
+    const btn = document.createElement('button');
+    btn.className = 'unit-btn';
+    btn.innerHTML = `
+      <div class="unit-pill" style="background:${meta.gradient}"></div>
+      <div class="unit-info">
+        <div class="unit-name">${unit}</div>
+        <div class="unit-sub">${meta.sub}</div>
+      </div>
+      <span class="unit-count">${count} preg.</span>
+      <span class="unit-arrow">→</span>
+    `;
+    btn.onclick = () => startQuiz(unit);
+    list.appendChild(btn);
+  });
+}
+
+function startQuiz(unit) {
+  state.unit = unit;
+  let pool = unit === 'Todas'
+    ? Object.values(ALL_QUESTIONS).flat()
+    : ALL_QUESTIONS[unit];
+  state.questions = shuffle(pool);
+  state.idx = 0;
+  state.score = 0;
+  state.answered = false;
+  state.selected = -1;
+  showScreen('quiz');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = state.questions[state.idx];
+  const meta = state.unit === 'Todas' ? { color:'#10b981', gradient:'linear-gradient(135deg,#10b981,#06b6d4)' } : UNIT_META[state.unit];
+  const total = state.questions.length;
+
+  const tag = document.getElementById('quiz-tag');
+  tag.textContent = state.unit;
+  tag.style.background = meta.gradient;
+  tag.style.color = '#fff';
+
+  document.getElementById('quiz-counter').textContent = `${state.idx + 1} / ${total}`;
+
+  const pct = (state.idx / total) * 100;
+  const fill = document.getElementById('progress-fill');
+  fill.style.background = meta.gradient;
+  fill.style.width = pct + '%';
+
+  document.getElementById('score-chip').textContent = `${state.score} correctas`;
+  document.getElementById('question-text').textContent = q.q;
+
+  const opts = document.getElementById('options');
+  opts.innerHTML = '';
+  const letters = ['A','B','C','D'];
+  q.o.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.style.animationDelay = (i * 0.05) + 's';
+    btn.innerHTML = `<span class="opt-letter">${letters[i]}</span><span class="opt-text">${opt}</span>`;
+    btn.onclick = () => selectAnswer(i);
+    opts.appendChild(btn);
+  });
+
+  document.getElementById('feedback').innerHTML = '';
+  const nb = document.getElementById('next-btn');
+  nb.style.display = 'none';
+  nb.style.background = meta.gradient;
+
+  state.answered = false;
+  state.selected = -1;
+}
+
+function selectAnswer(i) {
+  if (state.answered) return;
+  state.answered = true;
+  state.selected = i;
+  const q = state.questions[state.idx];
+  const correct = q.a;
+  const isRight = i === correct;
+  if (isRight) state.score++;
+
+  document.getElementById('score-chip').textContent = `${state.score} correctas`;
+
+  const btns = document.querySelectorAll('.opt-btn');
+  btns.forEach((btn, idx) => {
+    btn.classList.add('disabled');
+    if (idx === correct) {
+      btn.classList.add('correct');
+    } else if (idx === i && !isRight) {
+      btn.classList.add('wrong');
+    } else {
+      btn.classList.add('faded');
+    }
+  });
+
+  const fb = document.getElementById('feedback');
+  if (isRight) {
+    fb.innerHTML = `<div class="feedback-box ok"><span class="feedback-icon">🎉</span><span>¡Correcto!</span></div>`;
+  } else {
+    fb.innerHTML = `<div class="feedback-box fail"><span class="feedback-icon">💡</span><span>Incorrecto. La respuesta correcta es: <strong>${q.o[correct]}</strong></span></div>`;
+  }
+
+  const nb = document.getElementById('next-btn');
+  nb.style.display = 'block';
+  nb.textContent = state.idx + 1 >= state.questions.length ? 'Ver resultados' : 'Siguiente →';
+
+  const total = state.questions.length;
+  const pct = ((state.idx + 1) / total) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+}
+
+function nextQuestion() {
+  if (state.idx + 1 >= state.questions.length) {
+    showResults();
+  } else {
+    state.idx++;
+    renderQuestion();
+  }
+}
+
+function showResults() {
+  showScreen('results');
+  const pct = Math.round((state.score / state.questions.length) * 100);
+  const meta = state.unit === 'Todas' ? { color:'#10b981', gradient:'linear-gradient(135deg,#10b981,#06b6d4)' } : UNIT_META[state.unit];
+
+  const emoji = pct >= 80 ? '🏆' : pct >= 60 ? '👍' : pct >= 40 ? '📚' : '💪';
+  const msg   = pct >= 80 ? '¡Excelente dominio!' : pct >= 60 ? '¡Buen trabajo!' : pct >= 40 ? 'Sigue practicando' : '¡A estudiar más!';
+
+  document.getElementById('res-emoji').textContent = emoji;
+  document.getElementById('res-title').textContent = msg;
+  document.getElementById('res-sub').textContent = `${state.unit} · ${state.questions.length} preguntas`;
+  document.getElementById('res-pct').textContent = pct + '%';
+  document.getElementById('res-pct').style.background = meta.gradient;
+  document.getElementById('res-pct').style.webkitBackgroundClip = 'text';
+  document.getElementById('res-pct').style.webkitTextFillColor = 'transparent';
+  document.getElementById('res-score').textContent = `${state.score} de ${state.questions.length} correctas`;
+
+  const bar = document.getElementById('res-bar');
+  bar.style.background = meta.gradient;
+  setTimeout(() => { bar.style.width = pct + '%'; }, 100);
+
+  const rb = document.getElementById('replay-btn');
+  rb.style.background = meta.gradient;
+}
+
+function replayQuiz() { startQuiz(state.unit); }
+function goMenu() { showScreen('menu'); }
+
+buildMenu();
+</script>
+</body>
+</html>
