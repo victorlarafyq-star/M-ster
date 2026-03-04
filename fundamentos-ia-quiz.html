@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fundamentos de la IA — Test</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080b12;
+    --surface: #0f1420;
+    --surface2: #161d2e;
+    --border: #1e2a40;
+    --text: #e8edf5;
+    --muted: #5a6a85;
+    --accent: #4f7cff;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Animated background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 20% 20%, rgba(79,124,255,0.07) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 40% at 80% 80%, rgba(139,92,246,0.06) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1rem;
+  }
+
+  /* ───── MENU ───── */
+  #screen-menu { width: 100%; max-width: 520px; }
+
+  .logo-block {
+    text-align: center;
+    margin-bottom: 2.5rem;
+    animation: fadeDown .5s ease both;
+  }
+  .logo-icon {
+    width: 64px; height: 64px;
+    background: linear-gradient(135deg, #4f7cff, #8b5cf6);
+    border-radius: 18px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 0 40px rgba(79,124,255,0.25);
+  }
+  .logo-block h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.7rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: #fff;
+  }
+  .logo-block p {
+    color: var(--muted);
+    font-size: .85rem;
+    margin-top: .4rem;
+  }
+
+  .unit-list { display: flex; flex-direction: column; gap: .6rem; margin-bottom: 1rem; }
+
+  .unit-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: .9rem 1.1rem;
+    cursor: pointer;
+    display: flex; align-items: center; gap: .9rem;
+    transition: border-color .2s, transform .15s, background .2s;
+    animation: fadeUp .4s ease both;
+    text-align: left;
+    width: 100%;
+  }
+  .unit-btn:hover { border-color: #2d3f60; background: var(--surface2); transform: translateY(-1px); }
+  .unit-btn:active { transform: scale(.99); }
+
+  .unit-pill {
+    width: 4px; min-width: 4px; height: 40px;
+    border-radius: 99px;
+  }
+  .unit-info { flex: 1; min-width: 0; }
+  .unit-name {
+    font-family: 'Syne', sans-serif;
+    font-size: .9rem; font-weight: 700; color: #fff;
+  }
+  .unit-sub { font-size: .75rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: .15rem; }
+  .unit-count { font-size: .75rem; color: var(--muted); white-space: nowrap; }
+  .unit-arrow { color: var(--muted); font-size: 1rem; }
+
+  .mega-btn {
+    width: 100%;
+    padding: 1.1rem 1.4rem;
+    border-radius: 16px;
+    border: none;
+    cursor: pointer;
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem; font-weight: 700;
+    color: #fff;
+    background: linear-gradient(135deg, #4f7cff 0%, #8b5cf6 100%);
+    box-shadow: 0 8px 30px rgba(79,124,255,0.3);
+    display: flex; align-items: center; justify-content: space-between;
+    transition: opacity .2s, transform .15s;
+    animation: fadeUp .4s .35s ease both;
+  }
+  .mega-btn:hover { opacity: .92; transform: translateY(-1px); }
+  .mega-btn:active { transform: scale(.99); }
+  .mega-left { display: flex; align-items: center; gap: .75rem; }
+  .mega-left span:first-child { font-size: 1.4rem; }
+  .mega-title { font-size: 1rem; }
+  .mega-sub { font-size: .75rem; font-weight: 400; opacity: .75; }
+
+  /* ───── QUIZ ───── */
+  #screen-quiz { width: 100%; max-width: 520px; }
+
+  .quiz-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 1rem;
+    animation: fadeDown .3s ease both;
+  }
+  .back-btn {
+    background: none; border: 1px solid var(--border);
+    border-radius: 8px; padding: .4rem .8rem;
+    color: var(--muted); font-size: .8rem; cursor: pointer;
+    transition: color .15s, border-color .15s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .back-btn:hover { color: var(--text); border-color: #2d3f60; }
+
+  .unit-tag {
+    font-size: .7rem; font-weight: 600; padding: .3rem .7rem;
+    border-radius: 99px; letter-spacing: .05em;
+  }
+  .counter { font-size: .8rem; color: var(--muted); }
+
+  .progress-bar {
+    height: 3px; background: var(--border); border-radius: 99px;
+    margin-bottom: 1.2rem; overflow: hidden;
+    animation: fadeDown .3s .1s ease both;
+  }
+  .progress-fill {
+    height: 100%; border-radius: 99px;
+    transition: width .5s cubic-bezier(.4,0,.2,1);
+  }
+
+  .score-chip {
+    display: inline-flex; align-items: center; gap: .4rem;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 99px; padding: .3rem .8rem;
+    font-size: .8rem; color: var(--text);
+    margin-bottom: 1.2rem;
+    animation: fadeDown .3s .15s ease both;
+  }
+  .score-chip .star { color: #f59e0b; }
+
+  .question-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 1.4rem;
+    margin-bottom: 1.1rem;
+    animation: fadeUp .3s .1s ease both;
+  }
+  .question-card p {
+    font-size: .97rem; line-height: 1.6; color: var(--text);
+  }
+
+  .options { display: flex; flex-direction: column; gap: .55rem; margin-bottom: 1.2rem; }
+
+  .opt-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: .9rem 1rem;
+    cursor: pointer;
+    display: flex; align-items: center; gap: .75rem;
+    transition: border-color .15s, background .15s, transform .1s;
+    text-align: left; width: 100%;
+    animation: fadeUp .3s ease both;
+  }
+  .opt-btn:hover:not(.disabled) { border-color: #2d3f60; background: var(--surface2); transform: translateY(-1px); }
+  .opt-btn:active:not(.disabled) { transform: scale(.99); }
+  .opt-btn.disabled { cursor: default; }
+
+  .opt-btn.correct {
+    background: rgba(16,185,129,0.12);
+    border-color: #10b981;
+  }
+  .opt-btn.wrong {
+    background: rgba(239,68,68,0.1);
+    border-color: #ef4444;
+  }
+  .opt-btn.faded { opacity: .4; }
+
+  .opt-letter {
+    width: 28px; height: 28px; min-width: 28px;
+    border-radius: 50%; border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: .75rem; font-family: 'Syne', sans-serif; font-weight: 700;
+    color: var(--muted);
+    transition: background .2s, border-color .2s, color .2s;
+  }
+  .opt-btn.correct .opt-letter { background: #10b981; border-color: #10b981; color: #fff; }
+  .opt-btn.wrong .opt-letter { background: #ef4444; border-color: #ef4444; color: #fff; }
+
+  .opt-text { font-size: .85rem; line-height: 1.4; color: var(--text); }
+  .opt-btn.faded .opt-text { color: var(--muted); }
+
+  .feedback-box {
+    border-radius: 12px; padding: .8rem 1rem;
+    display: flex; align-items: flex-start; gap: .6rem;
+    font-size: .85rem; line-height: 1.4;
+    animation: fadeUp .2s ease both;
+    margin-bottom: .8rem;
+  }
+  .feedback-box.ok { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); color: #6ee7b7; }
+  .feedback-box.fail { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3); color: #fca5a5; }
+  .feedback-icon { font-size: 1rem; flex-shrink: 0; }
+
+  .next-btn {
+    width: 100%;
+    padding: .9rem;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    font-family: 'Syne', sans-serif; font-size: .95rem; font-weight: 700;
+    color: #fff;
+    transition: opacity .2s, transform .1s;
+    animation: fadeUp .25s ease both;
+  }
+  .next-btn:hover { opacity: .88; }
+  .next-btn:active { transform: scale(.99); }
+
+  /* ───── RESULTS ───── */
+  #screen-results { width: 100%; max-width: 420px; text-align: center; }
+
+  .result-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 2.5rem 2rem;
+    margin-bottom: 1.2rem;
+    animation: fadeUp .4s ease both;
+  }
+  .result-emoji { font-size: 3.5rem; margin-bottom: 1rem; }
+  .result-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.4rem; font-weight: 800; color: #fff;
+    margin-bottom: .3rem;
+  }
+  .result-sub { font-size: .82rem; color: var(--muted); margin-bottom: 1.5rem; }
+  .result-pct {
+    font-family: 'Syne', sans-serif;
+    font-size: 5rem; font-weight: 800;
+    line-height: 1;
+    margin-bottom: .3rem;
+  }
+  .result-score { font-size: .85rem; color: var(--muted); margin-bottom: 1.5rem; }
+  .result-bar {
+    height: 8px; background: var(--border); border-radius: 99px; overflow: hidden;
+  }
+  .result-bar-fill {
+    height: 100%; border-radius: 99px;
+    transition: width 1s cubic-bezier(.4,0,.2,1);
+  }
+
+  .result-actions { display: flex; flex-direction: column; gap: .7rem; animation: fadeUp .4s .1s ease both; }
+
+  .btn-outline {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: .9rem;
+    border-radius: 12px;
+    cursor: pointer;
+    font-family: 'Syne', sans-serif; font-size: .9rem; font-weight: 700;
+    transition: background .15s, border-color .15s;
+  }
+  .btn-outline:hover { background: var(--surface2); border-color: #2d3f60; }
+
+  /* ───── HIDDEN ───── */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ───── ANIMATIONS ───── */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* stagger for unit buttons */
+  .unit-btn:nth-child(1) { animation-delay: .05s }
+  .unit-btn:nth-child(2) { animation-delay: .10s }
+  .unit-btn:nth-child(3) { animation-delay: .15s }
+  .unit-btn:nth-child(4) { animation-delay: .20s }
+  .unit-btn:nth-child(5) { animation-delay: .25s }
+  .unit-btn:nth-child(6) { animation-delay: .30s }
+
+  .opt-btn:nth-child(1) { animation-delay: .05s }
+  .opt-btn:nth-child(2) { animation-delay: .10s }
+  .opt-btn:nth-child(3) { animation-delay: .15s }
+  .opt-btn:nth-child(4) { animation-delay: .20s }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- MENU -->
+  <div id="screen-menu" class="screen active">
+    <div class="logo-block">
+      <div class="logo-icon">🤖</div>
+      <h1>Fundamentos de la IA</h1>
+      <p>Elige un tema para practicar o pon a prueba todos los contenidos</p>
+    </div>
+    <div class="unit-list" id="unit-list"></div>
+    <button class="mega-btn" onclick="startQuiz('Todas')">
+      <div class="mega-left">
+        <span>⚡</span>
+        <div>
+          <div class="mega-title">Test Completo</div>
+          <div class="mega-sub">150 preguntas · Todas las unidades</div>
+        </div>
+      </div>
+      <span>→</span>
+    </button>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="screen-quiz" class="screen">
+    <div class="quiz-header">
+      <button class="back-btn" onclick="goMenu()">← Menú</button>
+      <span class="unit-tag" id="quiz-tag"></span>
+      <span class="counter" id="quiz-counter"></span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+    <div class="score-chip"><span class="star">★</span> <span id="score-chip">0 correctas</span></div>
+    <div class="question-card"><p id="question-text"></p></div>
+    <div class="options" id="options"></div>
+    <div id="feedback"></div>
+    <button class="next-btn" id="next-btn" style="display:none" onclick="nextQuestion()"></button>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="screen-results" class="screen">
+    <div class="result-card">
+      <div class="result-emoji" id="res-emoji"></div>
+      <div class="result-title" id="res-title"></div>
+      <div class="result-sub" id="res-sub"></div>
+      <div class="result-pct" id="res-pct"></div>
+      <div class="result-score" id="res-score"></div>
+      <div class="result-bar"><div class="result-bar-fill" id="res-bar"></div></div>
+    </div>
+    <div class="result-actions">
+      <button class="next-btn" id="replay-btn" onclick="replayQuiz()">🔄 Repetir este test</button>
+      <button class="btn-outline" onclick="goMenu()">← Volver al menú principal</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ──────────────────────────── DATA ────────────────────────────
+const ALL_QUESTIONS = {
+  "Unidad 1": [
+    {q:"Define inteligencia artificial",o:["Capacidad de una máquina para realizar tareas propias de humanos aunque no requieran mucha inteligencia","Capacidad de una máquina para evaluar, imitar y reproducir comportamientos humanos","Capacidad de una máquina para llevar a cabo tareas que, si fueran realizadas por seres humanos, requerirían inteligencia","Capacidad de una máquina para imitar comportamientos humanos de forma que el interlocutor no advierta que es una máquina"],a:2},
+    {q:"¿Quién acuñó el término 'inteligencia artificial' en la conferencia de Dartmouth en 1956?",o:["Alan Turing","Marvin Minsky","John McCarthy","Steve Jobs"],a:2},
+    {q:"¿Cómo se conoce también a la IA débil?",o:["Estrecha (narrow AI)","AGI (inteligencia artificial general)","Wide AI","IA teórica"],a:0},
+    {q:"¿Cómo se conoce también a la IA fuerte?",o:["Estrecha (narrow AI)","AGI (inteligencia artificial general)","Wide AI","IA simbólica"],a:1},
+    {q:"¿Qué dos tipos de IA combinan los sistemas híbridos actuales?",o:["Estrecha y AGI","Débil y fuerte","Simbólica y estadística","GPT y BERT"],a:2},
+    {q:"Sistemas diseñados para realizar tareas concretas con alto nivel de eficiencia, pero sin comprensión real del contexto ni capacidad para transferir lo aprendido a otras tareas",o:["IA débil","IA fuerte","IA híbrida","IA estadística"],a:0},
+    {q:"Sistemas que imitan comportamientos inteligentes, poseen consciencia, autoconciencia, capacidad de razonamiento y experiencia subjetiva",o:["Robots","IA consciente","IA fuerte","IA híbrida"],a:2},
+    {q:"Modelos entrenados para crear contenido original a partir de patrones aprendidos en grandes volúmenes de datos",o:["IA creativa","IA general","IA fuerte","IA generativa"],a:3},
+    {q:"¿Qué pregunta planteó Alan Turing en su artículo 'Computing Machinery and Intelligence' en 1950?",o:["¿Pueden las máquinas tener consciencia?","¿Pueden las máquinas pensar?","¿Puede un programa informático razonar para resolver problemas?","¿Son capaces las máquinas de aprender?"],a:1},
+    {q:"¿Qué es el GOFAI (Good Old-Fashioned Artificial Intelligence)?",o:["Estrategia basada en que las máquinas aprendan directamente a partir de datos","Sistema de machine learning para el procesamiento de datos","Enfoque simbólico, basado en representar el conocimiento mediante reglas lógicas","Sistema con el que AlphaGo derrotó al campeón mundial de Go"],a:2},
+    {q:"Sistemas que codifican el saber de especialistas humanos, capaces de realizar tareas en base a reglas básicas",o:["Sistemas expertos","Sistemas RNA","Sistemas de procesamiento de datos","Sistemas de aprendizaje automático"],a:0},
+    {q:"Periodo tecnológico de límites computacionales con resultados decepcionantes y expectativas demasiado altas",o:["Revolución del aprendizaje profundo","Fase fundacional","Inviernos de la IA","Etapa simbólica"],a:2},
+    {q:"¿Qué era la 'máquina universal' de Turing?",o:["Un dispositivo teórico capaz de realizar cualquier operación computacional","Un dispositivo capaz de imitar una conversación humana","Una máquina que transformaba símbolos en palabras","La máquina utilizada en 'la habitación china' de Searle"],a:0},
+    {q:"Modelo de neurona artificial que inspiró el desarrollo de las primeras redes neuronales artificiales, desarrollado por Frank Rosenblatt",o:["La 'máquina universal'","Perceptrón","Sistema experto","AlphaGo"],a:1},
+    {q:"Experimento en el que un humano debe distinguir si su interlocutor es una persona o una máquina",o:["La habitación china","El problema de los tres cuerpos","El test de Turing","El problema mente-máquina"],a:2},
+    {q:"¿Quién defendía que la conciencia es un fenómeno ligado a la biología, no replicable en una arquitectura simbólica o algorítmica?",o:["Alan Turing","Sygmund Papert","John McCarthy","John Searle"],a:3},
+    {q:"Experimento que demuestra que una máquina puede simular comprensión sin tenerla manipulando símbolos, pero sin acceso a su significado",o:["El Test de Turing","La habitación china","Los inviernos de la IA","El problema mente-máquina"],a:1},
+    {q:"Corriente que sostiene que si un sistema reproduce operaciones mentales puede considerarse inteligente",o:["Fenomenologismo","Tecnocentrismo","Funcionalismo computacional","Materialismo biológico"],a:2},
+    {q:"Corriente que defiende que los estados mentales están ligados a procesos neurobiológicos y no pueden replicarse en soportes artificiales",o:["Fenomenologismo","Tecnocentrismo","Funcionalismo computacional","Materialismo biológico"],a:3},
+    {q:"¿En qué obra clásica de la literatura Isaac Asimov presentó sus Tres leyes de la robótica?",o:["El moderno Prometeo","Yo, Robot","Ex Machina","Blade Runner"],a:1},
+    {q:"¿En qué película los androides (replicantes) plantean interrogantes sobre la memoria, la identidad y los derechos de los seres sintéticos?",o:["Matrix","2001: Una odisea en el espacio","Blade Runner","Her"],a:2},
+    {q:"¿Qué película plantea interrogantes sobre la libertad, el conocimiento y la manipulación digital en un mundo gobernado por algoritmos?",o:["Matrix","2001: Una odisea en el espacio","Blade Runner","Her"],a:0},
+    {q:"¿Qué novedad introducía el aprendizaje automático (machine learning) en los años 90 frente al enfoque simbólico?",o:["Los sistemas no se programaban con reglas, sino que se entrenaban con datos","El reconocimiento facial","Se basaba en redes neuronales profundas","Demostró que las máquinas podían ser más inteligentes que los humanos"],a:0},
+    {q:"¿Cuál de las siguientes opciones no se presenta como una limitación del aprendizaje profundo?",o:["Opacidad","Dependencia de datos masivos y costosos de procesar","Riesgos de sesgo y discriminación","Razonamiento creativo"],a:3},
+    {q:"Postura que celebra todo avance tecnológico como un progreso inevitable y deseable",o:["Alfabetización digital","Tecnofobia reactiva","Tecnofilia ingenua","IA filosófica"],a:2},
+    {q:"Postura que asocia la tecnología directamente con la pérdida de empleo, el control social y la deshumanización",o:["Alfabetización digital","Tecnofobia reactiva","Tecnofilia ingenua","IA filosófica"],a:1},
+  ],
+  "Unidad 2": [
+    {q:"¿Quién popularizó el concepto de Cuarta Revolución Industrial?",o:["Alan Turing","Klaus Schwab","Isaac Asimov","Marvin Minsky"],a:1},
+    {q:"¿Qué caracteriza a la Cuarta Revolución Industrial?",o:["El uso de carbón y la máquina de vapor","La producción en cadena impulsada por la electricidad","La convergencia entre lo digital, lo físico y lo biológico","La aparición de los primeros ordenadores"],a:2},
+    {q:"¿Qué significa que la IA sea una tecnología de propósito general (TPG)?",o:["Que sólo sirve en el ámbito educativo","Que tiene el potencial de transformar múltiples sectores de la sociedad","Que no sólo depende de hardware avanzado","Que se puede adaptar a diferentes sistemas de alimentación eléctrica"],a:1},
+    {q:"¿Qué tipo de tareas son más vulnerables a la automatización por IA?",o:["Creativas y artísticas","Rutinarias, repetitivas y predecibles","Innovación científica","Filosofía y ética"],a:1},
+    {q:"Según la OCDE (2019), ¿qué porcentaje de empleos podría ser automatizado parcial o totalmente en dos décadas?",o:["5-10%","20-40%","50-70%","80-90%"],a:1},
+    {q:"Concepto que describe el modelo económico basado en datos y plataformas digitales",o:["Economía circular","Capitalismo de plataformas o de la vigilancia","Economía solidaria","Socialismo tecnológico"],a:1},
+    {q:"Dominio de la IA por parte de unos pocos países y corporaciones",o:["Brecha digital","Colonialismo tecnológico","Reducción del consumo","Alfabetización digital"],a:1},
+    {q:"¿Cuál de las siguientes no es una 'infraestructura invisible' de la IA?",o:["Centros de datos y consumo energético","Extracción de minerales raros","Trabajo de etiquetadores humanos","Tala masiva"],a:3},
+    {q:"¿Qué plantea la justicia de datos?",o:["Que todos los datos sean públicos","Que el acceso y uso de datos sea justo, transparente y equitativo","Que los algoritmos funcionen igual en todos los países","Que solo los gobiernos tengan acceso a datos"],a:1},
+    {q:"¿Qué son las epistemologías situadas en el contexto de la IA?",o:["La idea de que el conocimiento siempre está vinculado a un lugar y perspectiva concretos","Un modelo matemático universal","Una técnica de aprendizaje automático","La visión de que el conocimiento es siempre neutro y objetivo"],a:0},
+    {q:"¿Qué significa la 'opacidad algorítmica'?",o:["Que los algoritmos son secretos de las grandes empresas","Que los modelos producen resultados sin explicar cómo llegan a ellos","Que los algoritmos no usan datos que se puedan comprobar","Que los sistemas de IA no funcionan en la práctica"],a:1},
+    {q:"¿Cuál es el objetivo de la IA explicable (XAI)?",o:["Que los algoritmos se oculten para evitar plagios","Aumentar la velocidad de procesamiento","Hacer los modelos interpretables, auditables y comprensibles","Eliminar la supervisión humana aumentando su eficacia"],a:2},
+    {q:"¿Qué es la injusticia algorítmica?",o:["El uso ilegal de software en países desarrollados","La reproducción de desigualdades sociales mediante sistemas automatizados","La ineficiencia de los algoritmos en educación en zonas rurales","El exceso de datos en ciertos sistemas"],a:1},
+    {q:"¿Qué establece el AI Act de la Unión Europea?",o:["Una clasificación de sistemas de IA según su nivel de riesgo","La prohibición total de la IA en educación","La obligación de usar siempre IA generativa","La gratuidad del acceso a algoritmos"],a:0},
+    {q:"¿Qué derecho digital protege la posibilidad de acceder, rectificar o eliminar información personal?",o:["Derecho al olvido","Derecho a la transparencia","Derecho a la privacidad","Derecho al consentimiento informado"],a:0},
+    {q:"¿Qué son las cámaras de eco en el entorno digital?",o:["Espacios virtuales donde se amplifican solo ideas afines","Algoritmos que promueven la diversidad informativa","Programas educativos online","Sistemas de reconocimiento de voz"],a:0},
+    {q:"¿Qué generan las burbujas informativas?",o:["Una visión plural y diversa de la realidad","Un aislamiento de opiniones diferentes al filtrar contenidos","El acceso a todas las fuentes posibles","Una visión objetiva y ramificada de los conocimientos en red"],a:1},
+    {q:"¿Qué significa la alfabetización digital crítica según la UNESCO?",o:["Usar la tecnología libremente sin necesidad de reflexionar","Conocer y cuestionar los sistemas digitales para ejercer una ciudadanía plena","Aprender programación desde la primera infancia","Reemplazar totalmente la enseñanza tradicional por sistemas basados en IA"],a:1},
+    {q:"¿Qué disciplina busca garantizar que las tecnologías tengan en cuenta la diversidad humana desde su diseño?",o:["Justicia de datos","Diseño inclusivo","Gobernanza algorítmica","Computación cuántica"],a:1},
+    {q:"¿Qué implica la supervisión humana significativa en decisiones automatizadas?",o:["Que las personas revisen de manera crítica y puedan intervenir en procesos algorítmicos","Que los humanos entrenen a los algoritmos para que no necesiten supervisión","Que los algoritmos decidan primero y luego se consulten expertos","Que sean las máquinas las que supervisen a otras máquinas"],a:0},
+    {q:"¿Qué derecho protege a los ciudadanos frente a la vigilancia algorítmica invasiva?",o:["Derecho a la explicación","Derecho a la conectividad","Derecho a la privacidad","Derecho al olvido"],a:2},
+    {q:"¿Qué busca la alfabetización digital crítica en educación?",o:["Reemplazar las materias tradicionales por programación","Formar ciudadanos capaces de comprender, cuestionar y transformar tecnologías digitales","Formar ciudadanos que sepan desenvolverse de forma eficaz en la era digital","Aprender a usar la tecnología de forma eficiente"],a:1},
+    {q:"Enfoque basado en que la ética de la IA no puede ser posterior al desarrollo técnico, sino estar integrada desde el origen",o:["El internet de las cosas (IoT)","Diseño equitativo","Ética desde el diseño (ethics by design)","Vigilancia ética"],a:2},
+    {q:"¿Qué es la hiperconectividad?",o:["Conexión excesiva entre personas y redes conectadas a internet","Dependencia constante de los sistemas algorítmicos predefinidos","Dependencia excesiva de las personas a las redes sociales","Interconexión constante y creciente entre personas, dispositivos, redes digitales y sistemas de información"],a:3},
+    {q:"Brecha en la que no todos tienen la misma infraestructura tecnológica",o:["Brecha de acceso","Brecha de género","Brecha territorial","Brecha de uso"],a:0},
+  ],
+  "Unidad 3": [
+    {q:"Disciplina de la IA que permite a las máquinas 'aprender' a partir de datos, mejorando su rendimiento con la experiencia",o:["Etiquetado de datos (data labeling)","Aprendizaje profundo (deep learning)","Aprendizaje automático (machine learning)","Analítica del aprendizaje (learning analytics)"],a:2},
+    {q:"¿Cuál no es un modelo del aprendizaje automático?",o:["Aprendizaje supervisado","Aprendizaje no supervisado","Aprendizaje por refuerzo","Aprendizaje por ensayo y error"],a:3},
+    {q:"Modelo que se entrena con un conjunto de datos etiquetados en los que se conocen la entrada y la salida",o:["Aprendizaje supervisado","Aprendizaje no supervisado","Aprendizaje por refuerzo","Aprendizaje por ensayo y error"],a:0},
+    {q:"Modelo que recibe sólo datos de entrada y debe encontrar estructuras internas, agrupaciones o patrones",o:["Aprendizaje supervisado","Aprendizaje no supervisado","Aprendizaje por refuerzo","Aprendizaje por ensayo y error"],a:1},
+    {q:"Modelo que se basa en un agente que interactúa con un entorno, toma decisiones y recibe recompensas o penalizaciones según sus acciones",o:["Aprendizaje supervisado","Aprendizaje no supervisado","Aprendizaje por refuerzo","Aprendizaje por ensayo y error"],a:2},
+    {q:"Estructuras jerárquicas que simulan un proceso de toma de decisiones paso a paso",o:["k-NN (k-Nearest Neighbors)","Árboles de decisión","Regresión","Clustering"],a:1},
+    {q:"Modelo que clasifica un nuevo dato observando qué clase predomina entre sus vecinos más próximos en el conjunto de entrenamiento",o:["k-NN (k-Nearest Neighbors)","Árboles de decisión","Regresión","Clustering"],a:0},
+    {q:"Técnica estadística cuyo objetivo es modelar una relación continua entre variables",o:["Clustering","Regresión lineal","Regresión logística","Árbol de decisión"],a:1},
+    {q:"Técnica estadística en la que se estima la probabilidad de que un caso pertenezca a una clase (clasificaciones binarias)",o:["Clustering","Regresión lineal","Regresión logística","Árbol de decisión"],a:2},
+    {q:"Técnica de aprendizaje no supervisado que permite agrupar automáticamente datos similares sin etiquetas previas",o:["Clustering","Regresión lineal","Regresión logística","Árbol de decisión"],a:0},
+    {q:"Arquitectura de la IA cuyo diseño se inspira en el funcionamiento del cerebro humano",o:["Árbol de decisión","Redes neuronales artificiales (RNA)","Cerebro robótico","Combinación de capas ocultas (CCO)"],a:1},
+    {q:"¿Cuál no es un tipo de capa de las redes neuronales artificiales?",o:["Capa de entrada","Capas ocultas","Capas funcionales","Capa de salida"],a:2},
+    {q:"Ciclo de retroalimentación en el que la red neuronal realiza una predicción, calcula el error y modifica los pesos mediante un algoritmo de optimización",o:["Feedback algorítmico","Clustering","Patrón algorítmico","Backpropagation"],a:3},
+    {q:"¿Por qué se dice que las redes neuronales artificiales funcionan como una caja negra?",o:["Porque guardan toda la información para quien quiera consultarla","Porque sus procesos resultan inaccesibles o no interpretables","Porque las capas ocultas sólo se pueden observar con consentimiento legítimo","Porque a veces contienen software maligno"],a:1},
+    {q:"¿En qué se basa la IA explicable?",o:["Transparencia, interpretabilidad y supervisión humana significativa","Explicabilidad en el entorno pedagógico","Comprensión precisa del funcionamiento de las RNA","Opacidad, subjetividad y evaluación"],a:0},
+    {q:"Subdisciplina del aprendizaje automático basada en redes neuronales con muchas capas ocultas",o:["Machine learning","RNA","Deep learning","PLN"],a:2},
+    {q:"Redes especializadas en el tratamiento de imágenes",o:["Transformers","Redes neuronales artificiales (RNA)","Redes neuronales convolucionales (CNN)","Redes neuronales recurrentes (RNN)"],a:2},
+    {q:"Redes diseñadas para procesar secuencias de datos, como texto o audio",o:["Transformers","Redes neuronales artificiales (RNA)","Redes neuronales convolucionales (CNN)","Redes neuronales recurrentes (RNN)"],a:3},
+    {q:"Arquitecturas que permiten al sistema concentrarse en las partes más relevantes de una secuencia de datos al procesarla",o:["Transformers","Redes neuronales artificiales (RNA)","Redes neuronales convolucionales (CNN)","Redes neuronales recurrentes (RNN)"],a:0},
+    {q:"¿Cuál de estas métricas de rendimiento corresponde a una tarea de regresión?",o:["Precisión (accuracy)","Precisión y recuperación (precision and recall)","Error cuadrático medio (MSE)","F1-score"],a:2},
+    {q:"¿Cuál de las siguientes opciones no es una métrica específica para evaluar el sesgo?",o:["Paridad demográfica","Igualdad de oportunidades","Equidad algorítmica","Disparate de impacto"],a:2},
+    {q:"¿Cómo deben ser los datos para el aprendizaje automático?",o:["Reales, comprobables y bien argumentados","Fiables, consistentes, completos y actualizados","Reales, transparentes, completos y bien argumentados","Fiables, transparentes, comprobables y actualizados"],a:1},
+    {q:"Proceso para eliminar registros duplicados, corregir errores de formato, rellenar valores faltantes y detectar valores atípicos",o:["Representatividad de datos","Limpieza de datos (data cleaning)","Minería de datos (data mining)","Etiquetado de datos (data labeling)"],a:1},
+    {q:"¿Qué ocurre cuando un modelo aprende demasiado bien los datos de entrenamiento y pierde la capacidad para generalizar?",o:["Explicabilidad (XAI)","Sobreajuste (overfitting)","Falta de reproducibilidad","Complementariedad híbrida"],a:1},
+    {q:"¿Qué enfoque de IA representa a los modelos machine learning y deep learning?",o:["La IA explicativa (XAI)","La IA simbólica","La IA estadística","La IA lógica"],a:2},
+  ],
+  "Unidad 4": [
+    {q:"¿Qué tipo de sistemas ajustan el contenido al ritmo, nivel y estilo de aprendizaje de cada estudiante?",o:["Sistemas de tutoría inteligente","Aplicaciones de analítica del aprendizaje","Plataformas adaptativas","Chatbots educativos"],a:2},
+    {q:"¿Qué son los chatbots educativos?",o:["Aplicaciones de recursos generativos","Asistentes virtuales","Sistemas de evaluación automatizada","Aplicaciones de analítica del aprendizaje"],a:1},
+    {q:"¿Cuál de las siguientes opciones no se presenta como una ventaja de las plataformas adaptativas?",o:["Ajuste al ritmo individual del aprendizaje","Retroalimentación inmediata y focalizada","Detección temprana de dificultades o desconexiones","Instrumentalización y mecanización del aprendizaje"],a:3},
+    {q:"Sistemas que ofrecen explicaciones, respuestas a preguntas, pistas, retroalimentación formativa y ejemplos ajustados al nivel del estudiante",o:["Tutores inteligentes (ITS)","Sistemas de zona de desarrollo próximo (ZDP)","Asistentes virtuales","Sistemas de andamiaje cognitivo"],a:0},
+    {q:"¿Qué sistemas que comparan patrones y se ajustan a las preferencias personales de los estudiantes se inspiran en plataformas como Amazon o Netflix?",o:["Sistemas de retroalimentación focalizada","Sistemas basados en la nube","Sistemas de recomendación","Sistemas de analítica del aprendizaje"],a:2},
+    {q:"Proceso de medición, recopilación, análisis y presentación de datos sobre los estudiantes y sus contextos para comprender y optimizar el aprendizaje",o:["Minería de datos educativos (educational data mining)","Analítica del aprendizaje (learning analytics)","Etiquetado de datos (data labeling)","Retroalimentación focalizada (focused feedback)"],a:1},
+    {q:"¿Qué son los dashboards?",o:["Paneles que muestran indicadores clave sobre el rendimiento de los estudiantes","Asistentes virtuales que ayudan al docente a organizar datos","Gráficas que muestran la interacción del estudiante con la plataforma adaptativa","Algoritmos de aprendizaje automático"],a:0},
+    {q:"¿Gracias a qué sistema de IA se pueden descubrir patrones de aprendizaje complejos, no evidentes o no anticipados?",o:["Retroalimentación educativa","Minería de datos educativos","Estadística algorítmica educativa","Learning analytics"],a:1},
+    {q:"¿Cuál de las siguientes opciones no se presenta como un riesgo de la analítica del aprendizaje y la minería de datos?",o:["Privacidad","Reduccionismo","Sobrecarga informativa","Personalización"],a:3},
+    {q:"En el proceso pedagógico, ¿qué no puede sustituirse por IA?",o:["La preparación de actividades adaptadas al ritmo de cada estudiante","El acompañamiento, la reflexión y la relación educativa","La evaluación de producciones orales","El feedback inmediato para el aprendizaje autorregulado"],a:1},
+    {q:"¿Cuál de las siguientes opciones es un ejemplo de LMS para la planificación docente?",o:["Moodle","Copilot","Grammarly","Turnitin"],a:0},
+    {q:"¿Qué tipo de aplicación utilizarías para ofrecer accesibilidad a estudiantes con dificultades auditivas?",o:["Lectores automáticos de texto (text-to-speech)","Reconocimiento de voz (speech-to-text)","Descripción automática de imágenes","Asistentes virtuales"],a:1},
+    {q:"¿Cuál es el fin de la personalización del aprendizaje con IA?",o:["Homogeneizar los resultados","Conseguir que todo el alumnado acceda a los mismos contenidos","Diversificar los itinerarios de acceso y participación en el aprendizaje","Ofrecer tutorías especializadas para alumnos con discapacidades"],a:2},
+    {q:"Para avanzar hacia la inclusión educativa con IA, ¿cuál de los tres elementos fundamentales NO es correcto?",o:["Innovación tecnológica","Conciencia crítica","Implementación experimental","Compromiso social"],a:2},
+    {q:"¿Cuál de las siguientes opciones se contradice con los principios comunes de las experiencias de implementación de la IA en educación?",o:["Respeto por la diversidad lingüística, cultural y pedagógica","La necesidad de marcos éticos y regulatorios claros","La eliminación de la agencia humana","El compromiso con la equidad y la inclusión digital"],a:2},
+    {q:"¿Cuál es el objetivo principal de utilizar IA como medio pedagógico?",o:["Ahorrar tiempo y burocracia a docentes e instituciones","Mejorar la eficiencia y la equidad en el proceso educativo","Formar ciudadanos preparados para un futuro más tecnológico","Crear sistemas de recomendación adaptados a cada contexto educativo"],a:1},
+    {q:"Para promover la justicia social, ¿en qué materias es importante integrar contenido de IA además de asignaturas técnicas?",o:["Humanidades y ciencias sociales","Cultura y deporte","Artes plásticas","Formación profesional"],a:0},
+    {q:"¿Cuál es el diseño de las aulas actuales en las que media la IA?",o:["No existen las aulas, el aprendizaje es remoto","Aulas tradicionales con un ordenador o tablet para cada alumno","Espacios híbridos y distribuidos","Espacios virtuales a los que se accede desde cualquier lugar del mundo"],a:2},
+    {q:"¿Qué opciones se proponen para que la temporalidad flexible del aprendizaje se ajuste al aprendizaje colectivo?",o:["Actividades de reflexión, debate y creación colaborativa","Creación de hitos individuales para cada alumno","Evaluación formativa","Tutores inteligentes para alumnos con problemas de aprendizaje"],a:0},
+    {q:"¿Cuál de las siguientes opciones no es una de las formas de reconfiguración del docente en entornos mediados por IA?",o:["De transmisor de contenidos a diseñador de experiencias de aprendizaje","De evaluador a facilitador del pensamiento crítico y ético","De guía lineal a mediador entre lo humano y lo algorítmico","De tutor a analista de datos de aprendizaje"],a:3},
+    {q:"Rama de la inteligencia artificial centrada en la interpretación de imágenes y vídeos",o:["IA convolucional","Visión por computadora (computer vision)","Percepción visual de IA","Retrovisión computacional"],a:1},
+    {q:"¿Qué rama de la IA sirve para leer y analizar escritura manuscrita?",o:["Learning analytics","Deep learning","Visión por computadora","PLN"],a:2},
+    {q:"Campo que diseña, construye y programa máquinas físicas capaces de percibir su entorno, tomar decisiones y ejecutar acciones de manera autónoma o semiautónoma",o:["Informática","PLN","Electrónica","Robótica"],a:3},
+    {q:"¿Cuál de las siguientes opciones es un ejemplo de kit programable para enseñar con robots?",o:["Pepper","LEGO Mindstorms","Atlas","Rover"],a:1},
+    {q:"La IA debe ponerse al servicio de una educación más…",o:["justa, significativa y humanizadora","tecnológica, avanzada y algorítmica","automática, iterativa y precisa","tecnológica, eficiente y significativa"],a:0},
+  ],
+  "Unidad 5": [
+    {q:"Rama de la IA que trata de dotar a los sistemas informáticos de la capacidad de comprender, interpretar, generar y manipular el lenguaje humano",o:["IA generativa","Procesamiento del lenguaje natural (PLN)","Modelación generativa","Pensamiento computacional (PC)"],a:1},
+    {q:"¿Qué ha permitido logros espectaculares en el desarrollo del PLN, con ejemplos como los traductores automáticos y la corrección gramatical?",o:["La IA simbólica","La IA estadística","La analítica del aprendizaje","El ChatGPT"],a:1},
+    {q:"Mientras los humanos aprenden a hablar para comunicarse, los sistemas de IA aprenden a…",o:["responder a preguntas","elaborar textos","predecir palabras","memorizar estructuras prediseñadas"],a:2},
+    {q:"¿Qué son los corpus lingüísticos?",o:["Bases de datos con millones o billones de fragmentos textuales","Manuales gramaticales con los que se entrenan los sistemas de IA","Modelos con millones de parámetros para reducir errores","Modelos de entrenamiento para enseñar a la máquina a imitar el pensamiento humano"],a:0},
+    {q:"¿El modelo de PLN entiende lo que escribe?",o:["Sí, de otro modo no sería capaz de reproducir lo que escribe","Sí, por eso se llama inteligencia artificial","No, sólo opera sobre representaciones matemáticas del lenguaje","No, utiliza buscadores booleanos para imitar el lenguaje humano"],a:2},
+    {q:"¿Cuál de los siguientes acrónimos no corresponde con un modelo de lenguaje de nueva generación en el campo del PLN?",o:["BERT","RNN","GPT","LlaMA"],a:1},
+    {q:"¿Cuál es la base de la transformación de los modelos de lenguaje de nueva generación?",o:["Las redes neuronales recurrentes (RNN)","Las redes neuronales convolucionales (CNN)","La arquitectura Transformer","Los modelos autorregresivos"],a:2},
+    {q:"Modelo de lenguaje autorregresivo que genera texto de forma secuencial, prediciendo una palabra a partir del contexto anterior",o:["BERT","RNN","GPT","LlaMA"],a:2},
+    {q:"Modelo de lenguaje bidireccional que analiza simultáneamente el contexto anterior y posterior de una palabra",o:["BERT","RNN","GPT","LlaMA"],a:0},
+    {q:"Modelo de tipo generativo que puede redactar, resumir o responder preguntas reduciendo el consumo computacional",o:["BERT","RNN","GPT","LlaMA"],a:3},
+    {q:"¿Cuál de las siguientes opciones no es una propiedad clave de los modelos de lenguaje de nueva generación?",o:["Escalabilidad","Transferencia","Emergencia","Fiabilidad"],a:3},
+    {q:"¿Qué tipo de aplicaciones educativas ayudan a generar textos, detectar errores gramaticales o sugerir mejoras estilísticas?",o:["Chatbots educativos","Aplicaciones de escritura asistida o automatizada","Aplicaciones de asistencia lingüística","Asistentes virtuales"],a:1},
+    {q:"Agentes conversacionales diseñados para responder preguntas, explicar conceptos, guiar en tareas o mantener diálogos simulados",o:["Chatbots educativos","Aplicaciones de escritura asistida o automatizada","Aplicaciones de asistencia lingüística","Asistentes virtuales"],a:0},
+    {q:"IA que se basa en modelos capaces de reproducir nuevas representaciones a partir de datos previos gracias al entrenamiento con grandes corpus de información",o:["IA simbólica","IA explicativa","IA generativa","IA productiva"],a:2},
+    {q:"¿Qué IA generativa puede producir composiciones originales en distintos estilos y géneros musicales, o incluso voces e instrumentos?",o:["Midjourney","Jukebox","DALL·E","GitHub Copilot"],a:1},
+    {q:"¿Se puede confiar en que la IA generativa trabaje desde una perspectiva pedagógica, ética o expresiva?",o:["Sí, ya que es capaz de identificar sesgos culturales y estereotipos","Sí, ya que sus producciones se basan en el sentido del contexto","No, porque carecen de juicio estético","No, es necesario el acompañamiento de una alfabetización crítica"],a:3},
+    {q:"¿Qué tipo de herramientas permiten corregir textos, señalar errores gramaticales y sugerir mejoras de estilo?",o:["Los LMS","Las herramientas de PLN","Los procesadores de texto","Las RNA"],a:1},
+    {q:"Condición en la que el aprendizaje se restringe a lo que puede ser medido con precisión computacional",o:["Dependencia tecnológica","Corrección automatizada","Reduccionismo algorítmico","Análisis de procesos"],a:2},
+    {q:"¿Cuál de las siguientes herramientas utiliza el procesamiento del lenguaje natural (PLN) para analizar textos en tiempo real?",o:["Grammarly","MATHia","Duolingo","Smart Sparrow"],a:0},
+    {q:"¿Qué tipo de herramientas son Smart Sparrow y ClassDojo?",o:["Herramientas de generación de rúbricas","Herramientas de analítica del aprendizaje","Herramientas de corrección automatizada","Herramientas de detección de plagio"],a:1},
+    {q:"¿Qué son las 'alucinaciones' en el ámbito del PLN?",o:["Textos plagiados parcialmente","Errores inventados que suenan plausibles","Referencias bibliográficas incompletas","Textos redactados con errores gramaticales"],a:1},
+    {q:"¿Pueden los modelos de PLN presentar problemas de representación y sesgo?",o:["Sí, porque aprenden a partir de textos existentes que pueden contener estereotipos y prejuicios","Sí, porque se les entrena con ese objetivo","No, porque están entrenados para superar ese tipo de barreras","No, porque los corpus lingüísticos representan todas las lenguas y culturas del mundo"],a:0},
+    {q:"¿Qué es la competencia metacomunicativa?",o:["Alfabetización crítica para comprender cómo funcionan los algoritmos de PNL","Ajustes lingüísticos que hacen los humanos para lograr mejores resultados de las máquinas","Capacidad de las máquinas para detectar fallos funcionales en el PNL","Capacidad de las máquinas para interpretar e imitar el lenguaje humano"],a:1},
+    {q:"Competencia clave para formar sujetos capaces de desarrollar conciencia dentro de la cultura digital contemporánea",o:["Competencia metacomunicativa","Inteligencia artificial ética","Alfabetización digital crítica","Alfabetización ética"],a:2},
+    {q:"Instrucción, pregunta o entrada que una persona proporciona a un sistema de IA para que genere una respuesta, imagen, texto, código u otro contenido",o:["Transformer","Output","Algoritmo","Prompt"],a:3},
+  ],
+  "Unidad 6": [
+    {q:"La UNESCO señala que la IA debe integrarse en la educación en base a principios…",o:["tecnológicos, científicos y de investigación","de justicia social, sostenibilidad ambiental y participación democrática","de I+D","de equidad global y justicia algorítmica"],a:1},
+    {q:"¿Qué principio implica que docentes y estudiantes comprendan cómo funciona la IA?",o:["Equidad y no discriminación","Transparencia y explicabilidad","Autonomía humana y supervisión significativa","Formación crítica y participación activa"],a:1},
+    {q:"¿Qué principio supone que las decisiones importantes deben seguir en manos del profesorado y éste no debe ser sustituido por sistemas automatizados?",o:["Equidad y no discriminación","Transparencia y explicabilidad","Autonomía humana y supervisión significativa","Formación crítica y participación activa"],a:2},
+    {q:"¿Qué tipo de materiales son el litio, el cobalto y las tierras raras, utilizados en la fabricación de chips, baterías y dispositivos?",o:["Materiales de consumo energético","Materiales sostenibles","Materiales de impacto bajo medioambiental","Materiales no renovables"],a:3},
+    {q:"¿Qué zonas del planeta se ven más afectadas por los impactos negativos de la IA?",o:["Los mares y océanos","El hemisferio norte","El hemisferio sur","Los casquetes polares"],a:2},
+    {q:"¿Cómo se conoce la zona del planeta en el que se concentra más del 50% de las reservas mundiales de litio?",o:["El Triángulo del Litio","Salmueras de Litio","La China del Litio","El hemisferio del Litio"],a:0},
+    {q:"Extracción masiva y sistemática de datos personales y su explotación con fines económicos o políticos",o:["Obsolescencia programada","Extractivismo digital","Cultura del reemplazo","Entrenamiento de modelos"],a:1},
+    {q:"Sistema por el que los modelos se actualizan constantemente, multiplicando su huella energética con cada ciclo",o:["Reentrenamiento iterativo","Refrigeración intensiva","Huella ecológica","Extractivismo digital"],a:0},
+    {q:"Residuos persistentes a base de dispositivos obsoletos o abandonados, archivos acumulados y contenidos generados sin utilidad",o:["La nube","Servidores de descarte","Basura digital","Huella de la IA"],a:2},
+    {q:"Estrategia por la que los dispositivos o softwares se diseñan con una vida limitada",o:["Basura digital","Obsolescencia programada","Consumo energético","Cultura del descarte"],a:1},
+    {q:"Modelo económico y cultural en el que empresas, plataformas digitales y medios compiten por captar y retener nuestra atención",o:["Cultura de la atención","Comercio de la atención","Economía de la atención","Atención preprogramada"],a:2},
+    {q:"Postura que exige reconocer los efectos del cambio climático y que las soluciones propuestas se distribuyen de manera desigual",o:["Justicia climática","Desigualdad digital","Brecha digital","Capitalismo digital"],a:0},
+    {q:"Forma contemporánea de capitalismo en la que la acumulación de riqueza y poder se basa en el control de datos, infraestructuras tecnológicas y plataformas digitales",o:["Justicia digital","Capitalismo digital","Capitalismo macroelectrónico","Capitalismo automatizado"],a:1},
+    {q:"Modelo que puede ser usado, modificado, compartido y distribuido sin depender de grandes empresas tecnológicas y con menor huella ecológica",o:["Hardware ético","Software libre","Tecnología de bajo consumo","Repair Café"],a:1},
+    {q:"Modelo para la creación de dispositivos reparables y duraderos, diseñado y fabricado respetando los derechos humanos, laborales y ecológicos",o:["Hardware ético","Software libre","Tecnología de bajo consumo","Repair Café"],a:0},
+    {q:"Práctica social en la que las personas se reúnen para arreglar juntas sus dispositivos",o:["Economía digital","Reparación colaborativa","Tecnología de bajo consumo","Reutilización digital"],a:1},
+    {q:"¿Qué papel juega la educación a la hora de crear una ciudadanía digital responsable?",o:["Debe formar conciencia crítica en el alumnado sobre el uso de tecnologías","Prohibir el uso de dispositivos durante las clases","Los docentes no pueden evitar el progreso de la tecnología","Los docentes deben limitarse a enseñar a utilizar la IA"],a:0},
+    {q:"¿Qué implica promover una integración reflexiva de la IA en el aula?",o:["Enseñar a los alumnos tanto a evitar el rechazo automático como la adopción acrítica","Dar libertad a los alumnos para utilizar la IA según sus criterios","Fomentar el uso constante de la IA sólo en asignaturas de ciencias","Informar a los alumnos sobre las nuevas actualizaciones de todos los dispositivos"],a:0},
+    {q:"En el ámbito institucional, ¿cómo pueden fomentarse las buenas prácticas sobre la IA?",o:["Con leyes que endurezcan la hiperconectividad","Formando a docentes sobre la protección de datos","Con políticas claras sobre el uso de la IA","Creando herramientas de IA específicas para la gestión educativa"],a:2},
+    {q:"¿Cuál de las siguientes opciones no es uno de los principios que establece la UNESCO sobre la ética de la IA?",o:["Respeto por los derechos humanos","Inclusión y no discriminación algorítmica","Opacidad algorítmica","Sostenibilidad ecológica"],a:2},
+    {q:"La manipulación del comportamiento humano de forma subliminal, ¿qué tipo de riesgo supone para la Unión Europea según su AI Act?",o:["Riesgo inaceptable","Alto riesgo","Riesgo limitado","Riesgo mínimo"],a:0},
+    {q:"Los algoritmos para la admisión de estudiantes o la selección de personal, ¿qué tipo de riesgo supone para la UE según su AI Act?",o:["Riesgo inaceptable","Alto riesgo","Riesgo limitado","Riesgo mínimo"],a:1},
+    {q:"¿Cuál es el objetivo del Plan Nacional de Competencias Digitales de la agenda España Digital 2026?",o:["Realizar una gran inversión pública en tecnología educativa","Implementar el uso de chatbots educativos en todo el país","Mejorar las competencias digitales de la ciudadanía y el sistema educativo","Enseñar a los ciudadanos cómo reparar y actualizar sus propios dispositivos"],a:2},
+    {q:"¿Qué documento establece un marco de principios orientados a garantizar los derechos fundamentales en el entorno digital en España?",o:["El Plan Nacional de Competencias Digitales","La Carta de Derechos Digitales","La AI Act","La Recomendación sobre la Ética de la Inteligencia Artificial"],a:1},
+    {q:"¿Qué objetivo comparten el Plan Nacional de Competencias Digitales y la Carta de los Derechos Digitales?",o:["El progreso ilimitado de la IA","El derecho a la desconexión digital","Perseguir y castigar a personas o instituciones contrarias a la justicia digital","Garantizar una transformación digital justa y democrática"],a:3},
+  ],
+};
+
+const UNIT_META = {
+  "Unidad 1": { color:"#818cf8", gradient:"linear-gradient(135deg,#6366f1,#818cf8)", sub:"Fundamentos, historia y pensamiento crítico" },
+  "Unidad 2": { color:"#38bdf8", gradient:"linear-gradient(135deg,#0ea5e9,#38bdf8)", sub:"IA como fenómeno sociotécnico y educativo" },
+  "Unidad 3": { color:"#34d399", gradient:"linear-gradient(135deg,#10b981,#34d399)", sub:"Cómo aprenden las máquinas" },
+  "Unidad 4": { color:"#fb923c", gradient:"linear-gradient(135deg,#f97316,#fb923c)", sub:"IA y aprendizaje: nuevas posibilidades" },
+  "Unidad 5": { color:"#f472b6", gradient:"linear-gradient(135deg,#ec4899,#f472b6)", sub:"Lenguaje, creatividad e IA generativa" },
+  "Unidad 6": { color:"#a78bfa", gradient:"linear-gradient(135deg,#8b5cf6,#a78bfa)", sub:"IA, sostenibilidad y ciudadanía digital" },
+};
+
+// ──────────────────────────── STATE ────────────────────────────
+let state = { unit: null, questions: [], idx: 0, score: 0, answered: false, selected: -1 };
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ──────────────────────────── SCREENS ────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+}
+
+// ──────────────────────────── MENU ────────────────────────────
+function buildMenu() {
+  const list = document.getElementById('unit-list');
+  list.innerHTML = '';
+  Object.entries(UNIT_META).forEach(([unit, meta]) => {
+    const count = ALL_QUESTIONS[unit].length;
+    const btn = document.createElement('button');
+    btn.className = 'unit-btn';
+    btn.innerHTML = `
+      <div class="unit-pill" style="background:${meta.gradient}"></div>
+      <div class="unit-info">
+        <div class="unit-name">${unit}</div>
+        <div class="unit-sub">${meta.sub}</div>
+      </div>
+      <span class="unit-count">${count} preg.</span>
+      <span class="unit-arrow">→</span>
+    `;
+    btn.onclick = () => startQuiz(unit);
+    list.appendChild(btn);
+  });
+}
+
+// ──────────────────────────── QUIZ ────────────────────────────
+function startQuiz(unit) {
+  state.unit = unit;
+  let pool = unit === 'Todas'
+    ? Object.values(ALL_QUESTIONS).flat()
+    : ALL_QUESTIONS[unit];
+  state.questions = shuffle(pool);
+  state.idx = 0;
+  state.score = 0;
+  state.answered = false;
+  state.selected = -1;
+  showScreen('quiz');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = state.questions[state.idx];
+  const meta = state.unit === 'Todas' ? { color:'#4f7cff', gradient:'linear-gradient(135deg,#4f7cff,#8b5cf6)' } : UNIT_META[state.unit];
+  const total = state.questions.length;
+
+  // tag
+  const tag = document.getElementById('quiz-tag');
+  tag.textContent = state.unit;
+  tag.style.background = meta.gradient;
+  tag.style.color = '#fff';
+
+  // counter
+  document.getElementById('quiz-counter').textContent = `${state.idx + 1} / ${total}`;
+
+  // progress
+  const pct = ((state.idx) / total) * 100;
+  const fill = document.getElementById('progress-fill');
+  fill.style.background = meta.gradient;
+  fill.style.width = pct + '%';
+
+  // score
+  document.getElementById('score-chip').textContent = `${state.score} correctas`;
+
+  // question
+  document.getElementById('question-text').textContent = q.q;
+
+  // options
+  const opts = document.getElementById('options');
+  opts.innerHTML = '';
+  const letters = ['A','B','C','D'];
+  q.o.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.style.animationDelay = (i * 0.05) + 's';
+    btn.innerHTML = `<span class="opt-letter">${letters[i]}</span><span class="opt-text">${opt}</span>`;
+    btn.onclick = () => selectAnswer(i);
+    opts.appendChild(btn);
+  });
+
+  // feedback hidden
+  document.getElementById('feedback').innerHTML = '';
+  const nb = document.getElementById('next-btn');
+  nb.style.display = 'none';
+  nb.style.background = meta.gradient;
+
+  state.answered = false;
+  state.selected = -1;
+}
+
+function selectAnswer(i) {
+  if (state.answered) return;
+  state.answered = true;
+  state.selected = i;
+  const q = state.questions[state.idx];
+  const correct = q.a;
+  const isRight = i === correct;
+  if (isRight) state.score++;
+
+  // update score chip
+  document.getElementById('score-chip').textContent = `${state.score} correctas`;
+
+  // style options
+  const btns = document.querySelectorAll('.opt-btn');
+  btns.forEach((btn, idx) => {
+    btn.classList.add('disabled');
+    if (idx === correct) {
+      btn.classList.add('correct');
+    } else if (idx === i && !isRight) {
+      btn.classList.add('wrong');
+    } else {
+      btn.classList.add('faded');
+    }
+  });
+
+  // feedback
+  const fb = document.getElementById('feedback');
+  if (isRight) {
+    fb.innerHTML = `<div class="feedback-box ok"><span class="feedback-icon">🎉</span><span>¡Correcto!</span></div>`;
+  } else {
+    fb.innerHTML = `<div class="feedback-box fail"><span class="feedback-icon">💡</span><span>Incorrecto. La respuesta correcta es: <strong>${q.o[correct]}</strong></span></div>`;
+  }
+
+  // next button
+  const nb = document.getElementById('next-btn');
+  nb.style.display = 'block';
+  nb.textContent = state.idx + 1 >= state.questions.length ? 'Ver resultados' : 'Siguiente →';
+
+  // update progress with answered
+  const total = state.questions.length;
+  const pct = ((state.idx + 1) / total) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+}
+
+function nextQuestion() {
+  if (state.idx + 1 >= state.questions.length) {
+    showResults();
+  } else {
+    state.idx++;
+    renderQuestion();
+  }
+}
+
+// ──────────────────────────── RESULTS ────────────────────────────
+function showResults() {
+  showScreen('results');
+  const pct = Math.round((state.score / state.questions.length) * 100);
+  const meta = state.unit === 'Todas' ? { color:'#4f7cff', gradient:'linear-gradient(135deg,#4f7cff,#8b5cf6)' } : UNIT_META[state.unit];
+
+  const emoji = pct >= 80 ? '🏆' : pct >= 60 ? '👍' : pct >= 40 ? '📚' : '💪';
+  const msg   = pct >= 80 ? '¡Excelente dominio!' : pct >= 60 ? '¡Buen trabajo!' : pct >= 40 ? 'Sigue practicando' : '¡A estudiar más!';
+
+  document.getElementById('res-emoji').textContent = emoji;
+  document.getElementById('res-title').textContent = msg;
+  document.getElementById('res-sub').textContent = `${state.unit} · ${state.questions.length} preguntas`;
+  document.getElementById('res-pct').textContent = pct + '%';
+  document.getElementById('res-pct').style.background = meta.gradient;
+  document.getElementById('res-pct').style.webkitBackgroundClip = 'text';
+  document.getElementById('res-pct').style.webkitTextFillColor = 'transparent';
+  document.getElementById('res-score').textContent = `${state.score} de ${state.questions.length} correctas`;
+
+  const bar = document.getElementById('res-bar');
+  bar.style.background = meta.gradient;
+  setTimeout(() => { bar.style.width = pct + '%'; }, 100);
+
+  const rb = document.getElementById('replay-btn');
+  rb.style.background = meta.gradient;
+}
+
+function replayQuiz() {
+  startQuiz(state.unit);
+}
+
+function goMenu() {
+  showScreen('menu');
+}
+
+// ──────────────────────────── INIT ────────────────────────────
+buildMenu();
+</script>
+</body>
+</html>
