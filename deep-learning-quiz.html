@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deep Learning — Test</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080b12;
+    --surface: #0f1420;
+    --surface2: #161d2e;
+    --border: #1e2a40;
+    --text: #e8edf5;
+    --muted: #5a6a85;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 15% 25%, rgba(6,182,212,0.08) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 40% at 85% 75%, rgba(99,102,241,0.08) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .wrap {
+    position: relative; z-index: 1;
+    min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 2rem 1rem;
+  }
+  #screen-menu { width: 100%; max-width: 520px; }
+  .logo-block { text-align: center; margin-bottom: 2.5rem; animation: fadeDown .5s ease both; }
+  .logo-icon {
+    width: 64px; height: 64px;
+    background: linear-gradient(135deg, #06b6d4, #6366f1);
+    border-radius: 18px;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 2rem; margin-bottom: 1rem;
+    box-shadow: 0 0 40px rgba(6,182,212,0.28);
+  }
+  .logo-block h1 { font-family: 'Syne', sans-serif; font-size: 1.7rem; font-weight: 800; letter-spacing: -0.02em; color: #fff; }
+  .logo-block p { color: var(--muted); font-size: .85rem; margin-top: .4rem; }
+  .unit-list { display: flex; flex-direction: column; gap: .6rem; margin-bottom: 1rem; }
+  .unit-btn {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+    padding: .9rem 1.1rem; cursor: pointer;
+    display: flex; align-items: center; gap: .9rem;
+    transition: border-color .2s, transform .15s, background .2s;
+    animation: fadeUp .4s ease both; text-align: left; width: 100%;
+  }
+  .unit-btn:hover { border-color: #2d3f60; background: var(--surface2); transform: translateY(-1px); }
+  .unit-btn:active { transform: scale(.99); }
+  .unit-pill { width: 4px; min-width: 4px; height: 40px; border-radius: 99px; }
+  .unit-info { flex: 1; min-width: 0; }
+  .unit-name { font-family: 'Syne', sans-serif; font-size: .9rem; font-weight: 700; color: #fff; }
+  .unit-sub { font-size: .75rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: .15rem; }
+  .unit-count { font-size: .75rem; color: var(--muted); white-space: nowrap; }
+  .unit-arrow { color: var(--muted); font-size: 1rem; }
+  .mega-btn {
+    width: 100%; padding: 1.1rem 1.4rem; border-radius: 16px; border: none; cursor: pointer;
+    font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; color: #fff;
+    background: linear-gradient(135deg, #06b6d4 0%, #6366f1 100%);
+    box-shadow: 0 8px 30px rgba(6,182,212,0.28);
+    display: flex; align-items: center; justify-content: space-between;
+    transition: opacity .2s, transform .15s;
+    animation: fadeUp .4s .35s ease both;
+  }
+  .mega-btn:hover { opacity: .92; transform: translateY(-1px); }
+  .mega-btn:active { transform: scale(.99); }
+  .mega-left { display: flex; align-items: center; gap: .75rem; }
+  .mega-left span:first-child { font-size: 1.4rem; }
+  .mega-title { font-size: 1rem; }
+  .mega-sub { font-size: .75rem; font-weight: 400; opacity: .75; }
+  #screen-quiz { width: 100%; max-width: 520px; }
+  .quiz-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; animation: fadeDown .3s ease both; }
+  .back-btn {
+    background: none; border: 1px solid var(--border); border-radius: 8px; padding: .4rem .8rem;
+    color: var(--muted); font-size: .8rem; cursor: pointer;
+    transition: color .15s, border-color .15s; font-family: 'DM Sans', sans-serif;
+  }
+  .back-btn:hover { color: var(--text); border-color: #2d3f60; }
+  .unit-tag { font-size: .7rem; font-weight: 600; padding: .3rem .7rem; border-radius: 99px; letter-spacing: .05em; }
+  .counter { font-size: .8rem; color: var(--muted); }
+  .progress-bar { height: 3px; background: var(--border); border-radius: 99px; margin-bottom: 1.2rem; overflow: hidden; animation: fadeDown .3s .1s ease both; }
+  .progress-fill { height: 100%; border-radius: 99px; transition: width .5s cubic-bezier(.4,0,.2,1); }
+  .score-chip {
+    display: inline-flex; align-items: center; gap: .4rem;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 99px; padding: .3rem .8rem; font-size: .8rem; color: var(--text);
+    margin-bottom: 1.2rem; animation: fadeDown .3s .15s ease both;
+  }
+  .score-chip .star { color: #f59e0b; }
+  .question-card { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 1.4rem; margin-bottom: 1.1rem; animation: fadeUp .3s .1s ease both; }
+  .question-card p { font-size: .97rem; line-height: 1.6; color: var(--text); }
+  .options { display: flex; flex-direction: column; gap: .55rem; margin-bottom: 1.2rem; }
+  .opt-btn {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: .9rem 1rem; cursor: pointer;
+    display: flex; align-items: center; gap: .75rem;
+    transition: border-color .15s, background .15s, transform .1s;
+    text-align: left; width: 100%; animation: fadeUp .3s ease both;
+  }
+  .opt-btn:hover:not(.disabled) { border-color: #2d3f60; background: var(--surface2); transform: translateY(-1px); }
+  .opt-btn:active:not(.disabled) { transform: scale(.99); }
+  .opt-btn.disabled { cursor: default; }
+  .opt-btn.correct { background: rgba(16,185,129,0.12); border-color: #10b981; }
+  .opt-btn.wrong { background: rgba(239,68,68,0.1); border-color: #ef4444; }
+  .opt-btn.faded { opacity: .4; }
+  .opt-letter {
+    width: 28px; height: 28px; min-width: 28px; border-radius: 50%; border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: .75rem; font-family: 'Syne', sans-serif; font-weight: 700; color: var(--muted);
+    transition: background .2s, border-color .2s, color .2s;
+  }
+  .opt-btn.correct .opt-letter { background: #10b981; border-color: #10b981; color: #fff; }
+  .opt-btn.wrong .opt-letter { background: #ef4444; border-color: #ef4444; color: #fff; }
+  .opt-text { font-size: .85rem; line-height: 1.4; color: var(--text); }
+  .opt-btn.faded .opt-text { color: var(--muted); }
+  .feedback-box {
+    border-radius: 12px; padding: .8rem 1rem;
+    display: flex; align-items: flex-start; gap: .6rem;
+    font-size: .85rem; line-height: 1.4;
+    animation: fadeUp .2s ease both; margin-bottom: .8rem;
+  }
+  .feedback-box.ok { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); color: #6ee7b7; }
+  .feedback-box.fail { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3); color: #fca5a5; }
+  .feedback-icon { font-size: 1rem; flex-shrink: 0; }
+  .next-btn {
+    width: 100%; padding: .9rem; border-radius: 12px; border: none; cursor: pointer;
+    font-family: 'Syne', sans-serif; font-size: .95rem; font-weight: 700; color: #fff;
+    transition: opacity .2s, transform .1s; animation: fadeUp .25s ease both;
+  }
+  .next-btn:hover { opacity: .88; }
+  .next-btn:active { transform: scale(.99); }
+  #screen-results { width: 100%; max-width: 420px; text-align: center; }
+  .result-card { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: 2.5rem 2rem; margin-bottom: 1.2rem; animation: fadeUp .4s ease both; }
+  .result-emoji { font-size: 3.5rem; margin-bottom: 1rem; }
+  .result-title { font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 800; color: #fff; margin-bottom: .3rem; }
+  .result-sub { font-size: .82rem; color: var(--muted); margin-bottom: 1.5rem; }
+  .result-pct { font-family: 'Syne', sans-serif; font-size: 5rem; font-weight: 800; line-height: 1; margin-bottom: .3rem; }
+  .result-score { font-size: .85rem; color: var(--muted); margin-bottom: 1.5rem; }
+  .result-bar { height: 8px; background: var(--border); border-radius: 99px; overflow: hidden; }
+  .result-bar-fill { height: 100%; border-radius: 99px; transition: width 1s cubic-bezier(.4,0,.2,1); }
+  .result-actions { display: flex; flex-direction: column; gap: .7rem; animation: fadeUp .4s .1s ease both; }
+  .btn-outline {
+    background: var(--surface); border: 1px solid var(--border); color: var(--text);
+    padding: .9rem; border-radius: 12px; cursor: pointer;
+    font-family: 'Syne', sans-serif; font-size: .9rem; font-weight: 700;
+    transition: background .15s, border-color .15s;
+  }
+  .btn-outline:hover { background: var(--surface2); border-color: #2d3f60; }
+  .screen { display: none; }
+  .screen.active { display: block; }
+  @keyframes fadeDown { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+  .unit-btn:nth-child(1){animation-delay:.05s}.unit-btn:nth-child(2){animation-delay:.10s}
+  .unit-btn:nth-child(3){animation-delay:.15s}.unit-btn:nth-child(4){animation-delay:.20s}
+  .unit-btn:nth-child(5){animation-delay:.25s}.unit-btn:nth-child(6){animation-delay:.30s}
+  .opt-btn:nth-child(1){animation-delay:.05s}.opt-btn:nth-child(2){animation-delay:.10s}
+  .opt-btn:nth-child(3){animation-delay:.15s}.opt-btn:nth-child(4){animation-delay:.20s}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div id="screen-menu" class="screen active">
+    <div class="logo-block">
+      <div class="logo-icon">🧠</div>
+      <h1>Deep Learning</h1>
+      <p>Elige un tema para practicar o pon a prueba todos los contenidos</p>
+    </div>
+    <div class="unit-list" id="unit-list"></div>
+    <button class="mega-btn" onclick="startQuiz('Todos')">
+      <div class="mega-left">
+        <span>⚡</span>
+        <div>
+          <div class="mega-title">Test Completo</div>
+          <div class="mega-sub">60 preguntas · Todos los temas</div>
+        </div>
+      </div>
+      <span>→</span>
+    </button>
+  </div>
+
+  <div id="screen-quiz" class="screen">
+    <div class="quiz-header">
+      <button class="back-btn" onclick="goMenu()">← Menú</button>
+      <span class="unit-tag" id="quiz-tag"></span>
+      <span class="counter" id="quiz-counter"></span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+    <div class="score-chip"><span class="star">★</span> <span id="score-chip">0 correctas</span></div>
+    <div class="question-card"><p id="question-text"></p></div>
+    <div class="options" id="options"></div>
+    <div id="feedback"></div>
+    <button class="next-btn" id="next-btn" style="display:none" onclick="nextQuestion()"></button>
+  </div>
+
+  <div id="screen-results" class="screen">
+    <div class="result-card">
+      <div class="result-emoji" id="res-emoji"></div>
+      <div class="result-title" id="res-title"></div>
+      <div class="result-sub" id="res-sub"></div>
+      <div class="result-pct" id="res-pct"></div>
+      <div class="result-score" id="res-score"></div>
+      <div class="result-bar"><div class="result-bar-fill" id="res-bar"></div></div>
+    </div>
+    <div class="result-actions">
+      <button class="next-btn" id="replay-btn" onclick="replayQuiz()">🔄 Repetir este test</button>
+      <button class="btn-outline" onclick="goMenu()">← Volver al menú principal</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const ALL_QUESTIONS = {
+  "Tema 1": [
+    {q:"¿Cómo se ajustan los pesos de la red durante el entrenamiento?",o:["Con la adición de más neuronas en la capa oculta.","Mediante retropropagación, que utiliza el error entre la predicción y la respuesta correcta para modificar los pesos.","Aleatoriamente sin considerar el error.","Ajustando manualmente cada peso."],a:1},
+    {q:"¿Cuál es la principal ventaja de agregar más capas ocultas en una red neuronal?",o:["Reducir el tiempo de entrenamiento.","Evitar el sobreajuste automáticamente.","Aumentar la interpretabilidad del modelo.","Permitir que la red aprenda transformaciones más complejas."],a:3},
+    {q:"¿Cuál es un indicador claro de que una red neuronal está sobreajustada?",o:["Obtener pocos errores en los datos de entrenamiento pero muchos errores en datos nuevos.","Alta velocidad de entrenamiento con pocos datos.","Mejora constante en pruebas en tiempo real.","Mantener precisión alta en tareas nunca vistas."],a:0},
+    {q:"¿Qué representa el peso en una conexión de una red neuronal?",o:["El número de neuronas en una capa.","La tasa de aprendizaje del modelo.","La importancia o influencia de esa conexión en la señal transmitida.","La salida generada por la neurona."],a:2},
+    {q:"¿Qué significa sobreajuste (overfitting) en el contexto del aprendizaje profundo?",o:["Que la red neuronal tiene demasiadas capas.","Que la red aprende a predecir con exactitud solo los casos del entrenamiento, fallando con datos nuevos.","Que el modelo utiliza excesivo hardware.","Que el modelo generaliza mejor a nuevos datos."],a:1},
+    {q:"¿Qué caracteriza el método de aprendizaje 'desde cero' (entrenar un modelo desde cero)?",o:["Requiere pocos datos de entrenamiento pero mucho tiempo de cálculo.","Arrancar con una 'mente en blanco', necesitando miles de ejemplos y largo tiempo de entrenamiento.","Solo funciona con redes neuronales muy pequeñas.","No requiere GPU para ser efectivo."],a:1},
+    {q:"¿Qué metáfora pedagógica se usa para ilustrar el transfer learning en el módulo?",o:["El Profesor A que inventa una nueva máquina.","Construir una casa sin planos.","El Profesor B que adapta un libro existente a su contexto.","Enseñar sin ningún material de apoyo."],a:2},
+    {q:"¿Cómo aprende una red neuronal durante el entrenamiento?",o:["Ajustando pesos mediante prueba y error para reducir el error de predicción.","Pre-programando explícitamente las reglas de clasificación.","Memorizando inputs sin ajustar ningún parámetro.","Ignorando los datos de entrenamiento."],a:0},
+    {q:"¿Qué es una neurona artificial?",o:["Un modelo biológico utilizado para aprendizaje.","Un 'mini-decisor' que suma entradas ponderadas y genera una salida.","Un algoritmo de clustering aplicado a datos.","Una unidad neuronal del cerebro humano."],a:1},
+    {q:"Comparando funciones de activación, ¿qué efecto tiene usar Tanh en lugar de ReLU según el TensorFlow Playground?",o:["ReLU produce fronteras de decisión más curvas que Tanh.","Tanh tiende a producir fronteras más suaves y continuas que ReLU.","No hay diferencia: ambas producen fronteras idénticas.","Tanh siempre impide el aprendizaje, a diferencia de ReLU."],a:1},
+  ],
+  "Tema 2": [
+    {q:"¿Qué es el aprendizaje por transferencia (transfer learning)?",o:["Entrenar un modelo desde cero con nuevos datos sin usar modelos existentes.","Reutilizar el conocimiento de un modelo ya entrenado para resolver una nueva tarea.","Compartir datos entre diferentes modelos de IA.","Copiar un modelo sin entrenarlo para una aplicación distinta."],a:1},
+    {q:"¿Por qué suele ser ventajoso usar transfer learning en lugar de entrenar un modelo nuevo?",o:["Porque siempre mejora la precisión absoluta.","Porque reduce mucho la necesidad de datos y acelera el entrenamiento.","Porque elimina por completo el riesgo de sesgos.","Porque automatiza el preprocesamiento de datos."],a:1},
+    {q:"¿Qué es el fine-tuning de un modelo en el contexto de transfer learning?",o:["Entrenar el modelo con miles de capas adicionales.","Ajustar ligeramente un modelo preentrenado con algunos datos nuevos.","Aumentar la tasa de aprendizaje al máximo.","Reentrenar completamente el modelo desde cero."],a:1},
+    {q:"¿Qué es Hugging Face Hub según el módulo?",o:["Una plataforma de computación en la nube para IA.","Un repositorio comunitario de modelos de IA preentrenados.","Un lenguaje de programación para IA.","Una librería de visión por computadora."],a:1},
+    {q:"¿Qué requiere entrenar un modelo de IA completamente desde cero?",o:["Pocos datos y poca potencia computacional.","Miles o millones de datos y recursos computacionales intensivos (mucho tiempo y potencia).","Solo un modelo preentrenado y un dataset pequeño.","Tener un modelo en la nube listo para usar."],a:1},
+    {q:"¿Cuál de las siguientes opciones describe mejor el uso de herramientas sin código (no-code) mencionadas en el módulo?",o:["Permiten crear modelos usando únicamente hojas de cálculo.","Son librerías de Python que requieren programación.","Ofrecen interfaces gráficas para entrenar modelos sin escribir código (por ejemplo, Teachable Machine).","Solamente gestionan bases de datos, no IA."],a:2},
+    {q:"¿Para qué sirve el Hugging Face Model Hub?",o:["Para buscar y tomar prestados modelos de IA preentrenados para tareas diversas.","Para implementar rápidamente proyectos de visión por computadora.","Para entrenar modelos desde cero más eficientemente.","Para medir el rendimiento de hardware en entrenamiento."],a:0},
+    {q:"¿Cuál es uno de los principales beneficios de usar transfer learning para docentes ocupados?",o:["Garantizar que el modelo sea 100% libre de sesgos.","Evitar la necesidad de cualquier validación de resultados.","Poder entrenar modelos en móviles con recursos muy limitados.","Hacer 'más con menos': reutilizar inteligencia ya incorporada en modelos existentes."],a:3},
+    {q:"¿Cuál de las siguientes acciones es un ejemplo de transfer learning?",o:["Entrenar un modelo nuevo desde cero sin referencia a otros modelos.","Tomar un modelo entrenado en una tarea relacionada y ajustarlo con nuevos datos.","Ignorar los resultados de entrenamiento y cambiar aleatoriamente las capas.","Copiar directamente las predicciones de un modelo sin modificarlo."],a:1},
+    {q:"¿Qué metáfora describe mejor el enfoque de transfer learning según el módulo?",o:["Escribir un libro completamente nuevo desde cero.","Construir una casa ladrillo a ladrillo.","Inventar un sistema educativo desde la nada.","Remodelar una casa ya existente para adaptarla a nuevas necesidades."],a:3},
+  ],
+  "Tema 3": [
+    {q:"¿Qué es el Procesamiento de Lenguaje Natural (PLN)?",o:["Un método para clasificar imágenes por colores.","La disciplina de IA que enseña a las máquinas a entender y generar lenguaje humano.","Un programa que traduce códigos de barras.","Un sensor para reconocer voces humanas."],a:1},
+    {q:"¿Cómo funcionan típicamente los asistentes de escritura con IA (por ejemplo, Grammarly o corrector de Word)?",o:["Generan automáticamente todo el texto sin errores.","Analizan el texto en busca de errores gramaticales u ortográficos y sugieren correcciones.","Traducen el texto a otro idioma antes de corregirlo.","Ignoran la sintaxis y solo se centran en el contenido."],a:1},
+    {q:"¿Cuál ha sido un cambio clave en los enfoques de PLN actuales respecto a los tradicionales?",o:["Pasar de usar reglas gramaticales programadas a usar aprendizaje automático con grandes cantidades de datos.","Eliminar por completo las redes neuronales del procesamiento del lenguaje.","Sustituir la lingüística por algoritmos de visión por computadora.","Reducir el uso de datos para evitar sobreajuste."],a:0},
+    {q:"¿Qué es un prompt en el contexto de modelos de lenguaje como GPT?",o:["Un parámetro interno de la red neuronal.","Un texto o consigna clara que le damos al modelo para que genere una respuesta.","Un error de predicción.","Un tipo de procesador especializado en IA."],a:1},
+    {q:"En el ejemplo sobre resúmenes de texto, ¿por qué el segundo prompt produce un resultado más ajustado?",o:["Porque era más corto que el primero.","Porque especifica claramente la extensión y el estilo del resumen.","Porque se escribió en otro idioma.","No produce un resultado diferente."],a:1},
+    {q:"¿Qué NO es necesario para interactuar eficazmente con un GPT en enseñanza?",o:["Conocer lenguajes de programación complejos.","Saber redactar preguntas claras en lenguaje natural.","Entender las posibilidades y riesgos de la IA.","Conocer el rol y el contexto deseado."],a:0},
+    {q:"¿Cómo se puede personalizar un modelo GPT para un caso educativo específico sin reentrenarlo?",o:["Añadiendo manualmente nuevas neuronas a la red.","Definiendo instrucciones de sistema o contexto fijo que guíen su comportamiento.","Cambiando el hardware donde corre el modelo.","No es posible personalizar un GPT sin reentrenarlo."],a:1},
+    {q:"¿En qué parte del aprendizaje de los asistentes de escritura intervienen las reglas lingüísticas programadas?",o:["En la fase de entrenamiento con big data.","Los asistentes no usan reglas, solo IA.","Solo en la interfaz de usuario.","En parte, al revisar concordancias gramaticales básicas."],a:3},
+    {q:"¿Cuál es la base del funcionamiento de un modelo de lenguaje como GPT para generar texto coherente?",o:["Diseñar manualmente reglas gramaticales.","Predicción estadística palabra por palabra basado en patrones aprendidos.","Almacenamiento literal de cada texto posible.","Uso de visión por computadora para entender imágenes."],a:1},
+    {q:"¿Por qué es importante redactar buenos prompts al usar IA conversacional en clase?",o:["Porque sin un prompt claro, el modelo no puede generar nada.","Porque la claridad y contexto del prompt determinan la utilidad de la respuesta obtenida.","Porque el modelo penaliza las preguntas largas con baja puntuación.","Porque los prompts largos provocan errores de sintaxis."],a:1},
+  ],
+  "Tema 4": [
+    {q:"¿Qué es la inteligencia artificial generativa?",o:["Algoritmos de IA tradicionales que solo clasifican datos.","Sistemas de Deep Learning que pueden crear contenido nuevo (texto, imágenes, audio, vídeo) a partir de patrones aprendidos.","Bots que responden con contenido predefinido fijo.","Modelos de IA que solo reproducen exactamente los datos de entrenamiento."],a:1},
+    {q:"¿Cómo difiere la IA generativa de la IA tradicional?",o:["La IA tradicional genera contenido nuevo, la IA generativa no.","La IA generativa puede producir contenido original basado en patrones, mientras la tradicional suele limitarse a reconocimiento o clasificación.","Solo se diferencian en la velocidad de procesamiento.","No hay diferencia; ambos producen contenido original."],a:1},
+    {q:"¿Cuál de los siguientes modelos es un ejemplo de generador de texto mencionado en el módulo?",o:["GPT-4 (modelo de OpenAI que impulsa ChatGPT).","ResNet (modelo de clasificación de imágenes).","LSTM básico para series temporales.","Algoritmo de k-medias."],a:0},
+    {q:"¿Cómo generan sus salidas los modelos de lenguaje basados en Transformer?",o:["Por reglas gramaticales precodificadas.","Prediciendo cada palabra o token de forma secuencial en base al contexto.","Clonando texto existente palabra por palabra.","Ejecutando un script de traducción."],a:1},
+    {q:"¿Cuál de estos modelos genera imágenes a partir de texto?",o:["Stable Diffusion.","Linux.","ElevenLabs.","Android."],a:0},
+    {q:"¿Qué tipo de contenido crea el modelo ElevenLabs según el módulo?",o:["Vídeo de alta resolución.","Audio sintético (voz hablada y efectos de sonido).","Texto narrativo.","Animaciones 3D."],a:1},
+    {q:"¿Cuál de los siguientes es un ejemplo de modelo generativo de vídeo mencionado?",o:["OpenAI Sora.","GPT.","DALL·E 3.","ResNet."],a:0},
+    {q:"¿Qué modelo permite generar vídeos con avatares virtuales que hablan el guion dado?",o:["ElevenLabs.","Google Lens.","Hugging Face.","Synthesia."],a:3},
+    {q:"¿Cómo interactúan los usuarios con las herramientas de generación automática de contenido?",o:["Programando modelos en ensamblador.","Cargando únicamente imágenes predefinidas.","Con guiños de cámara especiales.","Mediante indicaciones en lenguaje natural (prompts)."],a:3},
+    {q:"¿Cuál es la limitación actual de los modelos de texto-a-video según el módulo?",o:["Pueden generar vídeos largos en 4K instantáneamente.","Aún están en fase inicial y solo producen clips cortos con calidad limitada.","Son perfectamente precisos en cualquier escena compleja.","No existen modelos de texto-a-video mencionados."],a:1},
+  ],
+  "Tema 5": [
+    {q:"¿Qué es la visión por computadora?",o:["Una función de ruido de las cámaras.","Un sensor de profundidad en hardware.","Un campo de IA que enseña a las máquinas a 'ver' e interpretar imágenes del entorno.","Una técnica para analizar texto digital."],a:2},
+    {q:"¿Cuál de estos es un ejemplo cotidiano de visión por computadora mencionado?",o:["El corrector ortográfico de Word.","El reconocimiento facial del móvil que te desbloquea la pantalla.","La búsqueda de imágenes por texto en Google.","La recomendación de canciones en Spotify."],a:1},
+    {q:"¿Cuál de estos pasos NO forma parte de un pipeline típico de visión por computadora?",o:["Captura de píxeles (obtener la imagen digital).","Extracción de características (detectar bordes, formas).","Clasificación o interpretación (asignar etiqueta).","Transmisión de señales eléctricas por un cable."],a:3},
+    {q:"En una CNN (red neuronal convolucional) moderna, ¿qué tipo de patrones suelen detectar sus capas intermedias?",o:["Bordes orientados sencillos.","Ruido aleatorio.","Combinaciones de patrones simples (por ejemplo, partes de objetos como ojos o ruedas).","Valores RGB de píxeles."],a:2},
+    {q:"¿Qué hace la etapa final de clasificación en un sistema de visión por computadora?",o:["Calcula la tasa de aprendizaje.","Asigna una categoría al objeto visto (por ejemplo, identificar 'gato' vs 'perro').","Ajusta el brillo de la imagen.","Convierte la imagen a escala de grises."],a:1},
+    {q:"¿Para qué se utiliza el reconocimiento facial en el contexto educativo según el módulo?",o:["Para editar fotografías artísticas.","Para detectar el estilo literario en textos.","Para mejorar la compresión de archivos.","Para identificar o verificar la identidad de personas (por ejemplo, reconocer alumnos para control de asistencia)."],a:3},
+    {q:"¿Qué realiza el OCR (Reconocimiento Óptico de Caracteres) en visión por computadora?",o:["Convierte imágenes de texto impreso en texto digital editable.","Reconoce emociones faciales de los estudiantes.","Distingue entre gatos y perros en fotos.","Calcula el número de píxeles en una imagen."],a:0},
+    {q:"¿Qué hace la estimación de poses en aplicaciones educativas de visión?",o:["Detecta la posición del cuerpo o gestos (por ejemplo, identificar si un alumno levanta la mano).","Mide la iluminación del aula.","Escanea documentos académicos.","Clasifica diseños artísticos."],a:0},
+    {q:"¿Cuál de estas opciones NO es una tarea típica de visión por computadora mencionada?",o:["Detección de objetos en imágenes.","Reconocimiento facial de personas.","Transcripción de audio a texto.","Reconocimiento óptico de caracteres (OCR)."],a:2},
+    {q:"¿Cómo se interpreta digitalmente una imagen en una computadora?",o:["Como un texto .txt.","Como una matriz de números que representan los valores de color de cada píxel.","Como señales de audio.","Como un vector de audio."],a:1},
+  ],
+  "Tema 6": [
+    {q:"¿Qué es la interpretabilidad (explicabilidad) en IA?",o:["La capacidad de un modelo de IA de correr sin electricidad.","La habilidad de entender en lenguaje claro cómo el modelo toma sus decisiones.","Una métrica de desempeño.","El resultado de un prompt de GPT."],a:1},
+    {q:"¿Por qué es crucial la explicabilidad de la IA en entornos educativos?",o:["Porque mejora la velocidad de los algoritmos.","Porque permite reemplazar al docente.","Porque permite confiar en el sistema, detectar sesgos u errores, y cumplir requisitos éticos y legales, dado que la IA educativa es considerada de alto riesgo.","Porque evita por completo todos los sesgos."],a:2},
+    {q:"¿Qué caracteriza a un modelo intrínsecamente interpretable?",o:["Es siempre una red neuronal profunda.","Son modelos sencillos (por ejemplo, árboles de decisión o regresión lineal) cuyos mecanismos internos son comprensibles.","Solo trabaja con datos no estructurados.","No se puede explicar su funcionamiento en lenguaje común."],a:1},
+    {q:"¿Cuál es el propósito de entrenar un modelo proxy o sustituto?",o:["Reemplazar totalmente al modelo original en producción.","Generar ruido en los datos de entrenamiento.","Aumentar la potencia de cómputo en la nube.","Imitar el comportamiento de un modelo complejo (como una red neuronal) con un modelo explicable para entenderlo aproximadamente."],a:3},
+    {q:"¿Para qué sirven las métricas de importancia de variables (como valores SHAP) en interpretabilidad?",o:["Para optimizar el rendimiento gráfico de una red.","Para identificar qué variables influyen más en las predicciones del modelo, indicando la contribución de cada característica.","Para medir la tasa de aprendizaje.","Para cifrar los datos de entrada."],a:1},
+    {q:"¿Cuál es una ventaja de ejecutar IA localmente (en las instalaciones de la escuela)?",o:["Acceder a una mayor potencia computacional sin limitaciones.","Mayor control sobre los datos (sin enviarlos a la nube) y no depender de la conexión de internet.","Pagar solo por uso.","Actualizaciones automáticas provistas por terceros."],a:1},
+    {q:"¿Qué beneficio principal ofrece el uso de servicios de IA en la nube?",o:["Eliminar la necesidad de GPU local pero sin otros cambios.","Acceder a gran poder computacional bajo demanda (modelos enormes, escalabilidad) pagando solo por el uso.","Garantizar la privacidad de datos por diseño.","Solo funciona sin conexión a internet."],a:1},
+    {q:"¿Cuál de las siguientes es una desventaja del uso de la IA en la nube en el contexto escolar?",o:["Requiere conexión a internet fiable y puede generar costos continuos (suscripciones o uso intensivo).","No permite usar modelos avanzados.","Es completamente gratis en todo momento.","El alumno debe aprender a programar en la nube."],a:0},
+    {q:"¿Qué describe mejor a Teachable Machine (Google) según el texto?",o:["Un hardware especializado en visión.","Una plataforma no-code para entrenar modelos con pocas imágenes o sonidos, sin escribir código.","Un modelo generativo de imágenes.","Un algoritmo de clustering de nubes de puntos."],a:1},
+    {q:"¿Qué problema puede surgir al implementar IA basada en nube en escuelas rurales?",o:["Exceso de modelos abiertos disponibles.","Conectividad deficiente (banda ancha débil o inestable), lo que hace arriesgado depender exclusivamente de servicios en la nube.","Los alumnos no entenderán el funcionamiento.","No hay ningún problema, la nube es accesible universalmente."],a:1},
+  ],
+};
+
+const UNIT_META = {
+  "Tema 1": { gradient:"linear-gradient(135deg,#06b6d4,#0ea5e9)", sub:"Redes neuronales: pesos, capas y sobreajuste" },
+  "Tema 2": { gradient:"linear-gradient(135deg,#6366f1,#818cf8)", sub:"Transfer learning y modelos preentrenados" },
+  "Tema 3": { gradient:"linear-gradient(135deg,#10b981,#34d399)", sub:"Procesamiento del lenguaje natural en educación" },
+  "Tema 4": { gradient:"linear-gradient(135deg,#f59e0b,#fbbf24)", sub:"Generación automática de contenidos con IA" },
+  "Tema 5": { gradient:"linear-gradient(135deg,#ec4899,#f472b6)", sub:"Visión por computadora en el aula" },
+  "Tema 6": { gradient:"linear-gradient(135deg,#8b5cf6,#a78bfa)", sub:"Interpretabilidad y requisitos técnicos" },
+};
+
+let state = { unit: null, questions: [], idx: 0, score: 0, answered: false, selected: -1 };
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+}
+
+function buildMenu() {
+  const list = document.getElementById('unit-list');
+  list.innerHTML = '';
+  Object.entries(UNIT_META).forEach(([unit, meta]) => {
+    const count = ALL_QUESTIONS[unit].length;
+    const btn = document.createElement('button');
+    btn.className = 'unit-btn';
+    btn.innerHTML = `
+      <div class="unit-pill" style="background:${meta.gradient}"></div>
+      <div class="unit-info">
+        <div class="unit-name">${unit}</div>
+        <div class="unit-sub">${meta.sub}</div>
+      </div>
+      <span class="unit-count">${count} preg.</span>
+      <span class="unit-arrow">→</span>
+    `;
+    btn.onclick = () => startQuiz(unit);
+    list.appendChild(btn);
+  });
+}
+
+function startQuiz(unit) {
+  state.unit = unit;
+  let pool = unit === 'Todos' ? Object.values(ALL_QUESTIONS).flat() : ALL_QUESTIONS[unit];
+  state.questions = shuffle(pool);
+  state.idx = 0; state.score = 0; state.answered = false; state.selected = -1;
+  showScreen('quiz');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = state.questions[state.idx];
+  const meta = state.unit === 'Todos' ? { gradient:'linear-gradient(135deg,#06b6d4,#6366f1)' } : UNIT_META[state.unit];
+  const total = state.questions.length;
+
+  const tag = document.getElementById('quiz-tag');
+  tag.textContent = state.unit;
+  tag.style.background = meta.gradient;
+  tag.style.color = '#fff';
+
+  document.getElementById('quiz-counter').textContent = `${state.idx + 1} / ${total}`;
+
+  const fill = document.getElementById('progress-fill');
+  fill.style.background = meta.gradient;
+  fill.style.width = (state.idx / total * 100) + '%';
+
+  document.getElementById('score-chip').textContent = `${state.score} correctas`;
+  document.getElementById('question-text').textContent = q.q;
+
+  const opts = document.getElementById('options');
+  opts.innerHTML = '';
+  ['A','B','C','D'].forEach((l, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.style.animationDelay = (i * 0.05) + 's';
+    btn.innerHTML = `<span class="opt-letter">${l}</span><span class="opt-text">${q.o[i]}</span>`;
+    btn.onclick = () => selectAnswer(i);
+    opts.appendChild(btn);
+  });
+
+  document.getElementById('feedback').innerHTML = '';
+  const nb = document.getElementById('next-btn');
+  nb.style.display = 'none';
+  nb.style.background = meta.gradient;
+  state.answered = false; state.selected = -1;
+}
+
+function selectAnswer(i) {
+  if (state.answered) return;
+  state.answered = true; state.selected = i;
+  const q = state.questions[state.idx];
+  const correct = q.a;
+  const isRight = i === correct;
+  if (isRight) state.score++;
+
+  document.getElementById('score-chip').textContent = `${state.score} correctas`;
+
+  document.querySelectorAll('.opt-btn').forEach((btn, idx) => {
+    btn.classList.add('disabled');
+    if (idx === correct) btn.classList.add('correct');
+    else if (idx === i && !isRight) btn.classList.add('wrong');
+    else btn.classList.add('faded');
+  });
+
+  const fb = document.getElementById('feedback');
+  fb.innerHTML = isRight
+    ? `<div class="feedback-box ok"><span class="feedback-icon">🎉</span><span>¡Correcto!</span></div>`
+    : `<div class="feedback-box fail"><span class="feedback-icon">💡</span><span>Incorrecto. La respuesta correcta es: <strong>${q.o[correct]}</strong></span></div>`;
+
+  const nb = document.getElementById('next-btn');
+  nb.style.display = 'block';
+  nb.textContent = state.idx + 1 >= state.questions.length ? 'Ver resultados' : 'Siguiente →';
+  document.getElementById('progress-fill').style.width = ((state.idx + 1) / state.questions.length * 100) + '%';
+}
+
+function nextQuestion() {
+  if (state.idx + 1 >= state.questions.length) showResults();
+  else { state.idx++; renderQuestion(); }
+}
+
+function showResults() {
+  showScreen('results');
+  const pct = Math.round(state.score / state.questions.length * 100);
+  const meta = state.unit === 'Todos' ? { gradient:'linear-gradient(135deg,#06b6d4,#6366f1)' } : UNIT_META[state.unit];
+  const emoji = pct >= 80 ? '🏆' : pct >= 60 ? '👍' : pct >= 40 ? '📚' : '💪';
+  const msg   = pct >= 80 ? '¡Excelente dominio!' : pct >= 60 ? '¡Buen trabajo!' : pct >= 40 ? 'Sigue practicando' : '¡A estudiar más!';
+
+  document.getElementById('res-emoji').textContent = emoji;
+  document.getElementById('res-title').textContent = msg;
+  document.getElementById('res-sub').textContent = `${state.unit} · ${state.questions.length} preguntas`;
+  document.getElementById('res-pct').textContent = pct + '%';
+  document.getElementById('res-pct').style.background = meta.gradient;
+  document.getElementById('res-pct').style.webkitBackgroundClip = 'text';
+  document.getElementById('res-pct').style.webkitTextFillColor = 'transparent';
+  document.getElementById('res-score').textContent = `${state.score} de ${state.questions.length} correctas`;
+
+  const bar = document.getElementById('res-bar');
+  bar.style.background = meta.gradient;
+  setTimeout(() => { bar.style.width = pct + '%'; }, 100);
+  document.getElementById('replay-btn').style.background = meta.gradient;
+}
+
+function replayQuiz() { startQuiz(state.unit); }
+function goMenu() { showScreen('menu'); }
+
+buildMenu();
+</script>
+</body>
+</html>
